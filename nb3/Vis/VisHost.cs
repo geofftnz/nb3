@@ -18,7 +18,7 @@ namespace nb3.Vis
                     "NB3",
                     GameWindowFlags.Default,
                     DisplayDevice.Default,
-                    4, 5,
+                    3,3,
                     OpenTK.Graphics.GraphicsContextFlags.Default
                  )
         {
