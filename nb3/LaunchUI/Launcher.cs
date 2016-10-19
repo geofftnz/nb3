@@ -17,11 +17,16 @@ namespace nb3.LaunchUI
         public Launcher()
         {
             InitializeComponent();
+            
         }
 
         private void LaunchButton_Click(object sender, EventArgs e)
         {
-            //MessageBox.Show("TODO: Show renderer panel");
+            LaunchVis();
+        }
+
+        private void LaunchVis()
+        {
             if (visHost == null)
             {
                 visHost = new Vis.VisHost();
@@ -70,6 +75,11 @@ namespace nb3.LaunchUI
                 visHost.Dispose();
                 visHost = null;
             }
+        }
+
+        private void Launcher_Load(object sender, EventArgs e)
+        {
+            LaunchVis();
         }
     }
 }

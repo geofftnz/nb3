@@ -97,6 +97,7 @@
             this.Name = "Launcher";
             this.Text = "NB3";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Launcher_FormClosed);
+            this.Load += new System.EventHandler(this.Launcher_Load);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
