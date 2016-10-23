@@ -9,6 +9,7 @@ using System.Threading;
 using OpenTKExtensions;
 using OpenTKExtensions.Framework;
 using OpenTKExtensions.Text;
+using System.Diagnostics;
 
 namespace nb3.Vis
 {
@@ -24,6 +25,9 @@ namespace nb3.Vis
 
         private FrameData frameData = new FrameData();
         private GlobalTextures globalTextures = new GlobalTextures();
+        private Stopwatch timer = new Stopwatch();
+
+        private float[] tempSpectrum = new float[GlobalTextures.SPECTRUMRES]; // this will be coming in from the analysis side.
 
         private const string SHADERPATH = @"../../Res/Shaders;Res/Shaders";
 
@@ -92,6 +96,7 @@ namespace nb3.Vis
 
             components.Load();
             SetProjection();
+            timer.Start();
         }
 
         private void VisHost_RenderFrame(object sender, FrameEventArgs e)
@@ -117,6 +122,15 @@ namespace nb3.Vis
 
         private void VisHost_UpdateFrame(object sender, FrameEventArgs e)
         {
+            frameData.Time = timer.Elapsed.TotalSeconds;
+
+            for (int i = 0; i < GlobalTextures.SPECTRUMRES; i++)
+            {
+                tempSpectrum[i] = (float)(Math.Sin((double)i * frameData.Time * 0.01) * 0.5 + 0.5);
+            }
+
+
+            globalTextures.PushSample(tempSpectrum);
 
             Thread.Sleep(0);
         }

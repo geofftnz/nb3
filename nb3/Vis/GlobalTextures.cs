@@ -16,10 +16,24 @@ namespace nb3.Vis
     /// </summary>
     public class GlobalTextures : GameComponentBase
     {
+        /// <summary>
+        /// Number of samples that are kept in the texture ring-buffer
+        /// This is the V-coordinate dimension of the textures.
+        /// </summary>
         public const int SAMPLEHISTORY = 1024;
+
+        /// <summary>
+        /// Resolution of the audio spectrum.
+        /// This is the U-coordinate dimension of the textures.
+        /// </summary>
         public const int SPECTRUMRES = 1024;
+
         public Texture SpectrumTex { get; private set; }
 
+        /// <summary>
+        /// Texture V coordinate of last sample written.
+        /// </summary>
+        public int SamplePosition { get; private set; } = 0;
 
         public GlobalTextures()
         {
@@ -42,5 +56,15 @@ namespace nb3.Vis
             SpectrumTex.Unload();
         }
 
+        public void PushSample(float[] spectrumData)
+        {
+            if (spectrumData.Length < SPECTRUMRES)
+                throw new IndexOutOfRangeException("spectrumData not large enough");
+
+            SamplePosition++;
+            SamplePosition %= SAMPLEHISTORY;
+
+            SpectrumTex.RefreshImage(spectrumData, 0, SamplePosition, SPECTRUMRES, 1);
+        }
     }
 }

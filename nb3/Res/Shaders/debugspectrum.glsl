@@ -22,7 +22,7 @@ uniform sampler2D spectrumTex;
 void main(void)
 {
 	float s = texture2D(spectrumTex,texcoord).r;
-	vec4 col = vec4(s,1.0,0.0,1.0);
+	vec4 col = vec4(s,0.0,0.0,1.0);
 
 	out_Colour = col;	
 }
