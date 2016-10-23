@@ -10,11 +10,14 @@ using OpenTKExtensions;
 using OpenTKExtensions.Framework;
 using OpenTKExtensions.Text;
 using System.Diagnostics;
+using OpenTKExtensions.Filesystem;
 
 namespace nb3.Vis
 {
     public class VisHost : GameWindow
     {
+        private const string SHADERPATH = @"../../Res/Shaders;Res/Shaders";
+
         private GameComponentCollection components = new GameComponentCollection();
         private Font font;
         private TextManager text;
@@ -26,10 +29,11 @@ namespace nb3.Vis
         private FrameData frameData = new FrameData();
         private GlobalTextures globalTextures = new GlobalTextures();
         private Stopwatch timer = new Stopwatch();
+        private FileSystemPoller shaderUpdatePoller = new FileSystemPoller(SHADERPATH.Split(';')[0]);
+        private double lastShaderPollTime = 0.0;
 
         private float[] tempSpectrum = new float[GlobalTextures.SPECTRUMRES]; // this will be coming in from the analysis side.
 
-        private const string SHADERPATH = @"../../Res/Shaders;Res/Shaders";
 
         public VisHost()
             : base(800, 600,
@@ -101,6 +105,12 @@ namespace nb3.Vis
 
         private void VisHost_RenderFrame(object sender, FrameEventArgs e)
         {
+            if (shaderUpdatePoller.HasChanges)
+            {
+                components.Reload();
+                shaderUpdatePoller.Reset();
+            }
+
             text.AddOrUpdate(title);
 
             GL.ClearColor(0.0f, 0.1f, 0.4f, 1.0f);
@@ -124,9 +134,18 @@ namespace nb3.Vis
         {
             frameData.Time = timer.Elapsed.TotalSeconds;
 
+            // poll for shader changes
+            // TODO: make poll time a parameter
+            if (frameData.Time - lastShaderPollTime > 2.0)
+            {
+                shaderUpdatePoller.Poll();
+                lastShaderPollTime = frameData.Time;
+            }
+
+
             for (int i = 0; i < GlobalTextures.SPECTRUMRES; i++)
             {
-                tempSpectrum[i] = (float)(Math.Sin((double)i * frameData.Time * 0.01) * 0.5 + 0.5);
+                tempSpectrum[i] = (float)(Math.Sin((double)i * frameData.Time * 0.0001 + Math.Sin((double)i * frameData.Time * 3.0) * 0.5) * 0.5 + 0.5);
             }
 
 
