@@ -22,6 +22,11 @@ namespace nb3.Vis
         private Matrix4 overlayProjection;
         private Matrix4 overlayModelview;
 
+        private FrameData frameData = new FrameData();
+        private GlobalTextures globalTextures = new GlobalTextures();
+
+        private const string SHADERPATH = @"../../Res/Shaders;Res/Shaders";
+
         public VisHost()
             : base(800, 600,
                  new OpenTK.Graphics.GraphicsMode(
@@ -43,12 +48,21 @@ namespace nb3.Vis
             this.Closed += VisHost_Closed;
             this.Closing += VisHost_Closing;
 
+
+            // framedata setup
+            frameData.GlobalTextures = globalTextures;
+
             // create components
             //components.Add(font = new Font(@"res\font\calibrib.ttf_sdf.2048.png", @"res\font\calibrib.ttf_sdf.2048.txt"), 1);
             components.Add(font = new Font(@"res\font\lucon.ttf_sdf.1024.png", @"res\font\lucon.ttf_sdf.1024.txt"), 1);
             components.Add(text = new TextManager(), 2);
+            components.Add(globalTextures);
+            components.Add(new Renderers.DebugSpectrum());
+
             font.Loaded += (s, e) => { text.Font = font; };
 
+            // set default shader loader
+            ShaderProgram.DefaultLoader = new OpenTKExtensions.Loaders.MultiPathFileSystemLoader(SHADERPATH);
         }
 
         private void VisHost_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -87,6 +101,12 @@ namespace nb3.Vis
             GL.ClearColor(0.0f, 0.1f, 0.4f, 1.0f);
             GL.ClearDepth(1.0);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+
+            components.Render(frameData);
+
+
+
             GL.Disable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
 
@@ -111,7 +131,9 @@ namespace nb3.Vis
 
         private void SetOverlayProjection()
         {
-            overlayProjection = Matrix4.CreateOrthographicOffCenter(0.0f, (float)this.ClientRectangle.Width / (float)this.ClientRectangle.Height, 1.0f, 0.0f, 0.001f, 10.0f);
+            float aspect = ClientRectangle.Height > 0 ? ((float)this.ClientRectangle.Width / (float)this.ClientRectangle.Height) : 1f;
+
+            overlayProjection = Matrix4.CreateOrthographicOffCenter(0.0f, aspect, 1.0f, 0.0f, 0.001f, 10.0f);
             overlayModelview = Matrix4.Identity * Matrix4.CreateTranslation(0.0f, 0.0f, -1.0f);
 
             this.text.Projection = this.overlayProjection;
