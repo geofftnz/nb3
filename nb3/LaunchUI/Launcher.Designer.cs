@@ -70,6 +70,7 @@
             this.PlaylistView.DragDrop += new System.Windows.Forms.DragEventHandler(this.PlaylistView_DragDrop);
             this.PlaylistView.DragEnter += new System.Windows.Forms.DragEventHandler(this.PlaylistView_DragEnter);
             this.PlaylistView.QueryContinueDrag += new System.Windows.Forms.QueryContinueDragEventHandler(this.PlaylistView_QueryContinueDrag);
+            this.PlaylistView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.PlaylistView_MouseDoubleClick);
             // 
             // SongName
             // 

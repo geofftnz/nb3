@@ -11,6 +11,7 @@ using OpenTKExtensions.Framework;
 using OpenTKExtensions.Text;
 using System.Diagnostics;
 using OpenTKExtensions.Filesystem;
+using System.Collections.Concurrent;
 
 namespace nb3.Vis
 {
@@ -32,7 +33,10 @@ namespace nb3.Vis
         private FileSystemPoller shaderUpdatePoller = new FileSystemPoller(SHADERPATH.Split(';')[0]);
         private double lastShaderPollTime = 0.0;
 
+        private ConcurrentQueue<Player.AudioAnalysisSample> sampleQueue = new ConcurrentQueue<Player.AudioAnalysisSample>();
+
         private float[] tempSpectrum = new float[GlobalTextures.SPECTRUMRES]; // this will be coming in from the analysis side.
+
 
 
         public VisHost()
@@ -143,13 +147,19 @@ namespace nb3.Vis
             }
 
 
-            for (int i = 0; i < GlobalTextures.SPECTRUMRES; i++)
+            Player.AudioAnalysisSample sample;
+
+            while (sampleQueue.TryDequeue(out sample))
             {
-                tempSpectrum[i] = (float)(Math.Sin((double)i * frameData.Time * 0.0001 + Math.Sin((double)i * frameData.Time * 3.0) * 0.5) * 0.5 + 0.5);
+                globalTextures.PushSample(sample.Spectrum);
             }
 
+            //for (int i = 0; i < GlobalTextures.SPECTRUMRES; i++)
+            //{
+            //    tempSpectrum[i] = (float)(Math.Sin((double)i * frameData.Time * 0.0001 + Math.Sin((double)i * frameData.Time * 3.0) * 0.5) * 0.5 + 0.5);
+            //}
 
-            globalTextures.PushSample(tempSpectrum);
+            //globalTextures.PushSample(tempSpectrum);
 
             Thread.Sleep(0);
         }
@@ -171,6 +181,11 @@ namespace nb3.Vis
 
             this.text.Projection = this.overlayProjection;
             this.text.Modelview = this.overlayModelview;
+        }
+
+        public void AddSample(Player.AudioAnalysisSample sample)
+        {
+            sampleQueue.Enqueue(sample);
         }
     }
 }

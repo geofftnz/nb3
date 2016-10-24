@@ -71,6 +71,10 @@
     <Compile Include="LaunchUI\Launcher.Designer.cs">
       <DependentUpon>Launcher.cs</DependentUpon>
     </Compile>
+    <Compile Include="Player\AudioAnalysisSample.cs" />
+    <Compile Include="Player\Player.cs" />
+    <Compile Include="Player\RingBuffer.cs" />
+    <Compile Include="Player\SpectrumGenerator.cs" />
     <Compile Include="Playlist\Playlist.cs" />
     <Compile Include="Playlist\PlaylistItem.cs" />
     <Compile Include="Program.cs" />
@@ -122,9 +126,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Player\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

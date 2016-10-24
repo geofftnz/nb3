@@ -22,6 +22,9 @@ uniform sampler2D spectrumTex;
 void main(void)
 {
 	float s = texture2D(spectrumTex,texcoord.yx).r;
+
+	s = sqrt(s) * 4.0;
+
 	vec4 col = vec4(0.0,0.0,0.0,1.0);
 	col.b = max(0.0,min(sqrt(s) * 2.0,1.0) - max(0.0,s-0.5));
 	col.r = min(max(0.0,s - 0.25) * 4.0,1.0);

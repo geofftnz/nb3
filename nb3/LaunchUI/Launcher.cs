@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NAudio.Wave;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,16 +9,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace nb3.LaunchUI
 {
     public partial class Launcher : Form
     {
         private Vis.VisHost visHost = null;
+        private IWavePlayer output = new DirectSoundOut(50); // 50ms latency
+        private Player.Player player = null;
 
         public Launcher()
         {
             InitializeComponent();
-            
         }
 
         private void LaunchButton_Click(object sender, EventArgs e)
@@ -41,6 +44,53 @@ namespace nb3.LaunchUI
             DisposeVisHost();
         }
 
+
+        private void Launcher_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            DisposeVisHost();
+
+            if (player != null)
+            {
+                player.Dispose();
+                player = null;
+            }
+
+            if (output != null)
+            {
+                output.Stop();
+                output.Dispose();
+                output = null;
+            }
+        }
+
+        private void DisposeVisHost()
+        {
+            if (visHost != null)
+            {
+                visHost.Dispose();
+                visHost = null;
+            }
+        }
+
+        private void Launcher_Load(object sender, EventArgs e)
+        {
+            player = new Player.Player(output);
+            player.SpectrumReady += Player_SpectrumReady;
+
+
+            //LaunchVis();
+        }
+
+        private void Player_SpectrumReady(object sender, Player.FftEventArgs e)
+        {
+            if (visHost != null)
+            {
+                visHost.AddSample(e.Sample);
+            }
+        }
+
+        #region PlaylistView
+
         private void PlaylistView_QueryContinueDrag(object sender, QueryContinueDragEventArgs e)
         {
             e.Action = DragAction.Continue;
@@ -63,23 +113,21 @@ namespace nb3.LaunchUI
             }
         }
 
-        private void Launcher_FormClosed(object sender, FormClosedEventArgs e)
+        private void PlaylistView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            DisposeVisHost();
-        }
-
-        private void DisposeVisHost()
-        {
-            if (visHost != null)
+            /*
+            foreach (ListViewItem item in PlaylistView.SelectedItems)
             {
-                visHost.Dispose();
-                visHost = null;
-            }
+                MessageBox.Show(item.Text);
+            }*/
+            ListViewItem item = PlaylistView.SelectedItems[0];
+
+            player.Open(item.Text);
+            player.Play();
+
         }
 
-        private void Launcher_Load(object sender, EventArgs e)
-        {
-            LaunchVis();
-        }
+        #endregion
+
     }
 }
