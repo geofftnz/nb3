@@ -38,9 +38,19 @@ namespace nb3.Player
             }
         }
 
-        public void Generate(RingBuffer<float> ringbuffer)
+        public void Generate(RingBuffer<float> ringbuffer, bool mirror = false)
         {
-            ringbuffer.CopyLastTo(fftTempSamples, 0, size);
+            if (mirror)
+            {
+                ringbuffer.CopyLastTo(fftTempSamples, 0, size / 2);
+                for (int i = 0; i < size / 2; i++)
+                    fftTempSamples[size - i - 1] = fftTempSamples[i];
+            }
+            else
+            {
+                ringbuffer.CopyLastTo(fftTempSamples, 0, size);
+            }
+
 
             for (int i = 0; i < size; i++)
             {
