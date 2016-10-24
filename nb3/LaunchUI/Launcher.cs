@@ -15,7 +15,7 @@ namespace nb3.LaunchUI
     public partial class Launcher : Form
     {
         private Vis.VisHost visHost = null;
-        private IWavePlayer output = new DirectSoundOut(50); // 50ms latency
+        //private IWavePlayer output = null;
         private Player.Player player = null;
 
         public Launcher()
@@ -48,19 +48,7 @@ namespace nb3.LaunchUI
         private void Launcher_FormClosed(object sender, FormClosedEventArgs e)
         {
             DisposeVisHost();
-
-            if (player != null)
-            {
-                player.Dispose();
-                player = null;
-            }
-
-            if (output != null)
-            {
-                output.Stop();
-                output.Dispose();
-                output = null;
-            }
+            DestroyPlayer();
         }
 
         private void DisposeVisHost()
@@ -74,12 +62,28 @@ namespace nb3.LaunchUI
 
         private void Launcher_Load(object sender, EventArgs e)
         {
-            player = new Player.Player(output);
-            player.SpectrumReady += Player_SpectrumReady;
-
+            CreatePlayer();
 
             //LaunchVis();
         }
+
+        private void CreatePlayer()
+        {
+            DestroyPlayer();
+            player = new Player.Player(()=> new DirectSoundOut(50));
+            player.SpectrumReady += Player_SpectrumReady;
+        }
+
+        private void DestroyPlayer()
+        {
+            if (player != null)
+            {
+                //player.SpectrumReady -= Player_SpectrumReady;
+                player.Dispose();
+                player = null;
+            }
+        }
+
 
         private void Player_SpectrumReady(object sender, Player.FftEventArgs e)
         {

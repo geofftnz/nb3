@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using NAudio;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using System.Threading;
 
 namespace nb3.Player
 {
@@ -23,7 +24,7 @@ namespace nb3.Player
     /// </summary>
     public class Player : IDisposable
     {
-        // Wave output is owned by caller, do not dispose.
+        private Func<IWavePlayer> outputFactory = null;
         private IWavePlayer output = null;
 
         //private WaveStream pcmstream = null;
@@ -38,21 +39,33 @@ namespace nb3.Player
 
 
 
-        public Player(IWavePlayer output)
+        public Player(Func<IWavePlayer> outputFactory)
         {
-            this.output = output;
+            this.outputFactory = outputFactory;
 
         }
 
         public void Open(string filename)
         {
-            Stop();
+            /*
+            if (output != null)
+            {
+                output.Stop();
+
+                while (output.PlaybackState != PlaybackState.Stopped)
+                {
+                    Thread.Sleep(10);
+                }
+            }*/
+            
+
+
             Dispose(true);
 
             //pcmstream = WaveFormatConversionStream.CreatePcmStream(new Mp3FileReader(filename));
             //reductionstream = new BlockAlignReductionStream(pcmstream);
             //output.Init(new WaveChannel32(reductionstream));
-
+            output = outputFactory();
             reader = new AudioFileReader(filename);
             spectrum = new SpectrumGenerator(reader);
             spectrum.SpectrumReady += Spectrum_SpectrumReady;
@@ -66,6 +79,9 @@ namespace nb3.Player
 
         public void Play()
         {
+            if (output == null)
+                return;
+
             switch (output.PlaybackState)
             {
                 case PlaybackState.Stopped:
@@ -79,6 +95,9 @@ namespace nb3.Player
 
         public void Pause()
         {
+            if (output == null)
+                return;
+
             switch (output.PlaybackState)
             {
                 case PlaybackState.Playing:
@@ -91,6 +110,9 @@ namespace nb3.Player
 
         public void Stop()
         {
+            if (output == null)
+                return;
+
             switch (output.PlaybackState)
             {
                 case PlaybackState.Playing:
@@ -114,6 +136,13 @@ namespace nb3.Player
         {
             if (disposing)
             {
+                if (output != null)
+                {
+                    output.Stop();
+                    output.Dispose();
+                    output = null;
+                }
+
                 if (reader != null)
                 {
                     reader.Dispose();

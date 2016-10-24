@@ -32,13 +32,16 @@ namespace nb3.Player
             current %= length;
         }
 
-        public void CopyLastTo(int count, T[] buffer)
+        public void CopyLastTo(T[] buffer, int offset, int count)
         {
             if (count > length)
                 throw new InvalidOperationException(string.Format("Cannot get more than {0} items from this ring buffer, attempted {1}.", length, count));
 
+            if (offset + count > buffer.Length)
+                throw new InvalidOperationException(string.Format("Output buffer overflow {0} > {1}", offset + count, buffer.Length));
+
             int start = (current - count + length + length) % length;
-            for (int i = 0; i < count; i++)
+            for (int i = offset; i < offset + count; i++)
             {
                 buffer[i] = items[start];
                 start++;

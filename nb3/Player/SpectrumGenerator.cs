@@ -31,6 +31,10 @@ namespace nb3.Player
         private int sampleCounter = 0;
         private float[] fftWindowShape = new float[fftSize];
 
+        // reusable buffers so we're not thrashing GC
+        private float[] fftTempSamples = new float[fftSize];
+        private Complex[] fftTempComplex = new Complex[fftSize];
+
         private RingBuffer<float> ringbuffer = new RingBuffer<float>(8192);
 
         public event EventHandler<FftEventArgs> SpectrumReady;
@@ -52,7 +56,21 @@ namespace nb3.Player
 
         public int Read(float[] buffer, int offset, int count)
         {
-            int samplesRead = source.Read(buffer, offset, count);
+            if (source == null)
+                return 0;
+
+
+
+            int samplesRead = 0;
+
+            try
+            {
+                samplesRead = source.Read(buffer, offset, count);
+            }
+            catch (NullReferenceException)  // TODO: FIX FILTHY HACK
+            {
+                return 0;
+            }
 
             for(int i = 0; i < samplesRead; i+=channels)
             {
@@ -79,7 +97,30 @@ namespace nb3.Player
             sampleCounter++;
             if (sampleCounter > frameInterval)
             {
-                // calculate and emit FFT
+                
+                // get the last size/2 samples into the first half of our temp buffer
+                ringbuffer.CopyLastTo(fftTempSamples, 0, fftSize);
+
+                // mirror the first half of the buffer into the second half
+                //for(int i = 0; i < fftSize / 2; i++)
+                //{
+                    //fftTempSamples[fftSize - i - 1] = fftTempSamples[i];
+                //}
+
+                // copy to complex buffer, apply hamming window
+                for (int i = 0; i < fftSize; i++)
+                {
+                    fftTempComplex[i].X = fftTempSamples[i] * fftWindowShape[i];
+                    fftTempComplex[i].Y = 0f;
+                }
+
+                // transform
+                FastFourierTransform.FFT(true, fft_m, fftTempComplex);
+
+                // take magnitude of half of the FFT for output
+                float[] f = fftTempComplex.Take(fftSize / 2).Select(c => (float)Math.Sqrt(c.X * c.X + c.Y * c.Y)).ToArray();
+
+                /*
                 var fftWindow = ringbuffer.Last().Take(fftSize).Select(x => new Complex { X = x, Y = 0f }).ToArray();
 
                 for (int i = 0; i < fftSize; i++)
@@ -90,7 +131,7 @@ namespace nb3.Player
                 FastFourierTransform.FFT(true, fft_m, fftWindow);
 
                 float[] f = fftWindow.Select(c=>(float)Math.Sqrt(c.X*c.X+c.Y*c.Y)).Take(fftSize/2).ToArray();
-
+                */
                 var analysisSample = new AudioAnalysisSample(f);
 
                 SpectrumReady?.Invoke(this, new FftEventArgs(analysisSample));
