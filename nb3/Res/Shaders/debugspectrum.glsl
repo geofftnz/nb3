@@ -23,10 +23,12 @@ void main(void)
 {
 	//texcoord.y *= texcoord.y;
 	vec2 t = texcoord.yx;
-	t.x = t.x * t.x;// + t.x*0.5;
+	//t.x = t.x * t.x;// + t.x*0.5;
+	t.x = pow(t.x,sqrt(2.0));
 	float s = texture2D(spectrumTex,t).r;
 
-	s = s * 128.0 * sqrt(t.x);
+	//s = s * 128.0 * sqrt(t.x);
+	s = 40.0*log(1.0+s);
 
 	vec4 col = vec4(0.0,0.0,0.0,1.0);
 	col.b = max(0.0,min(sqrt(s) * 2.0,1.0) - max(0.0,s-0.5));

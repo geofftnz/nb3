@@ -29,7 +29,7 @@ namespace nb3.Player
 
         //private WaveStream pcmstream = null;
         //private BlockAlignReductionStream reductionstream = null;
-        private AudioFileReader reader = null;
+        private AudioFileReader2 reader = null;
         private SpectrumGenerator spectrum = null;
 
         public event EventHandler<FftEventArgs> SpectrumReady;
@@ -66,7 +66,7 @@ namespace nb3.Player
             //reductionstream = new BlockAlignReductionStream(pcmstream);
             //output.Init(new WaveChannel32(reductionstream));
             output = outputFactory();
-            reader = new AudioFileReader(filename);
+            reader = new AudioFileReader2(filename);
             spectrum = new SpectrumGenerator(reader);
             spectrum.SpectrumReady += Spectrum_SpectrumReady;
             output.Init(spectrum);
