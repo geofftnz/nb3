@@ -92,16 +92,10 @@ vec4 renderGraph(vec2 t)
 
 	for (float i = 0.0;i<1.0;i+=0.1)
 	{
-		float s = getSample(vec2(ty,currentPosition - texel.x * i * 20.0));
-
-		//if (s > t.x)
-		//if (abs(s-t.x) < 0.05)
-		//{
-
+		float s = getSample(vec2(ty,currentPosition - texel.x * i * 10.0));
 		float a = abs(s-t.x);
 		a = 1.0 - smoothstep(a*a,0.0,0.0005);
 		col += colscale(s) * a * 0.6 * (1.0 - i);
-		//}
 	}
 
 	return vec4(col,1.0);

@@ -124,10 +124,13 @@ namespace nb3.LaunchUI
             {
                 MessageBox.Show(item.Text);
             }*/
-            ListViewItem item = PlaylistView.SelectedItems[0];
+            if (PlaylistView.SelectedItems.Count > 0)
+            {
+                ListViewItem item = PlaylistView.SelectedItems[0];
 
-            player.Open(item.Text);
-            player.Play();
+                player.Open(item.Text);
+                player.Play();
+            }
 
         }
 

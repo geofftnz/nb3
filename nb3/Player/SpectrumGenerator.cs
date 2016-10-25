@@ -30,7 +30,7 @@ namespace nb3.Player
         private const int fftSize1 = 1024;
         private const int fftSize2 = 256;
 
-        private int frameInterval = 44100 / 180;  // target 60 FPS
+        private int frameInterval = 44100 / 120;  // target 60 FPS
         private int sampleCounter = 0;
         private const int outputResolution = 1024;
         //private int[] fftRepmap = new int[outputResolution];  // remap from larger spectrum to smaller output.
