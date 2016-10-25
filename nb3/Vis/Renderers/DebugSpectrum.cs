@@ -54,7 +54,8 @@ namespace nb3.Vis.Renderers
 
             // render quad
             program.UseProgram()
-                .SetUniform("spectrumTex", 0);
+                .SetUniform("spectrumTex", 0)
+                .SetUniform("currentPosition", frameData.GlobalTextures.SamplePositionRelative);
             vertexVBO.Bind(this.program.VariableLocation("vertex"));
             indexVBO.Bind();
             GL.DrawElements(BeginMode.Triangles, indexVBO.Length, DrawElementsType.UnsignedInt, 0);

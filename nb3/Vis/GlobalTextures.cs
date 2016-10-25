@@ -35,6 +35,14 @@ namespace nb3.Vis
         /// </summary>
         public int SamplePosition { get; private set; } = 0;
 
+        public float SamplePositionRelative
+        {
+            get
+            {
+                return (float)SamplePosition / (float)SAMPLEHISTORY;
+            }
+        }
+
         public GlobalTextures()
         {
             SpectrumTex = new Texture("spectrum", SPECTRUMRES, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float);
@@ -48,7 +56,7 @@ namespace nb3.Vis
             SpectrumTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear));
             SpectrumTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear));
             SpectrumTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge));
-            SpectrumTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge));
+            SpectrumTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat));
             SpectrumTex.UploadEmpty();
         }
         private void GlobalTextures_Unloading(object sender, EventArgs e)

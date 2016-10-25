@@ -18,6 +18,7 @@ precision highp float;
 layout (location = 0) in vec2 texcoord;
 layout (location = 0) out vec4 out_Colour;
 uniform sampler2D spectrumTex;
+uniform float currentPosition;
 
 float getSample(vec2 t)
 {
@@ -35,41 +36,75 @@ float getSample(vec2 t)
 	return s;
 }
 
-vec2 texel = vec2(1.0/2048.0,0.0);
+vec2 texel = vec2(1.0/1024.0,0.0);
 
-vec4 renderSpectrum(vec2 t)
+float fscale(float x)
 {
-	t.x = t.x * 0.1 + 0.9 * t.x * t.x;
+	return x * 0.1 + 0.9 * x * x;
+}
 
-	float s = getSample(t);
+vec3 g2l(vec3 c)
+{
+	return pow(c,vec3(2.0));
+}
+vec3 l2g(vec3 c)
+{
+	return pow(c,vec3(1.0/2.0));
+}
 
-	vec4 col = vec4(0.0,0.0,0.0,1.0);
-	vec4 col0 = vec4(0.0,0.0,0.0,1.0);
-	vec4 col1 = vec4(0.04,0.02,0.7,1.0);
-	vec4 col2 = vec4(0.1,0.7,0.8,1.0);
-	vec4 col3 = vec4(0.9,0.8,0.05,1.0);
-	vec4 col4 = vec4(0.9,0.1,0.02,1.0);
-	vec4 col5 = vec4(0.95,0.95,0.95,1.0);
+vec3 colscale(float s)
+{
+	vec3 col  = g2l(vec3(0.0,0.0,0.0   ));
+	vec3 col0 = g2l(vec3(0.0,0.0,0.2   ));
+	vec3 col1 = g2l(vec3(0.0,0.1,0.9 ));
+	vec3 col2 = g2l(vec3(0.0,0.8,0.6   ));
+	vec3 col3 = g2l(vec3(0.9,0.9,0.0  ));
+	vec3 col4 = g2l(vec3(0.9,0.0,0.0  ));
+	vec3 col5 = g2l(vec3(1.0,1.0,1.0));
 	
-	col = mix(col0,col1,clamp(s*10.0,0.0,1.0));
-	col = mix(col,col2,clamp((s-0.125)*3.0,0.0,1.0));
-	col = mix(col,col3,clamp((s-0.25)*3.0,0.0,1.0));
-	col = mix(col,col4,clamp((s-0.5)*4.0,0.0,1.0));
-	col = mix(col,col5,clamp((s-0.75)*8.0,0.0,1.0));
+	col = mix(col0,col1,clamp(s*2.5,0.0,1.0));
+	col = mix(col,col2,clamp((s-0.2)*3.0,0.0,1.0));
+	col = mix(col,col3,clamp((s-0.4)*4.0,0.0,1.0));
+	col = mix(col,col4,clamp((s-0.6)*5.0,0.0,1.0));
+	col = mix(col,col5,clamp((s-0.8)*6.0,0.0,1.0));
 
 	return col;
 }
 
+vec4 renderSpectrum(vec2 t)
+{
+	t.x = fscale(t.x);
+
+	float s = getSample(t);
+
+	vec3 col = colscale(s);
+
+	float a = 1.0 - smoothstep(abs(currentPosition-t.y),0.0,0.5/1024.0);
+	col += vec3(0.8) * a;
+
+	return vec4(col,1.0);
+}
+
 vec4 renderGraph(vec2 t)
 {
-	vec4 col = vec4(0.0,0.0,0.0,1.0);
+	vec3 col = vec3(0.0,0.0,0.0);
+	float ty = fscale(t.y);
 
-	float s = getSample(vec2(t.y,0.0));
+	for (float i = 0.0;i<1.0;i+=0.1)
+	{
+		float s = getSample(vec2(ty,currentPosition - texel.x * i * 20.0));
 
-	if (s > t.x)
-		col = vec4(1.0);
+		//if (s > t.x)
+		//if (abs(s-t.x) < 0.05)
+		//{
 
-	return col;
+		float a = abs(s-t.x);
+		a = 1.0 - smoothstep(a*a,0.0,0.0005);
+		col += colscale(s) * a * 0.6 * (1.0 - i);
+		//}
+	}
+
+	return vec4(col,1.0);
 }
 
 
@@ -80,15 +115,19 @@ void main(void)
 
 	vec4 col;
 
-	if (t.x>0.1)
+	if (t.x>0.2)
 	{
-		vec2 t2 = vec2((t.x-0.1)/0.9,t.y);
+		vec2 t2 = vec2((t.x-0.2)/0.8,t.y);
 		col = renderSpectrum(t2);
 	}
 	else
 	{
-		col = renderGraph(vec2(t.x*10.0,t.y));
+		col = renderGraph(vec2(t.x*5.0,t.y));
 	}
+
+	
+	// gamma
+	col.rgb = l2g(col.rgb);
 
 	out_Colour = col;	
 }
