@@ -91,15 +91,16 @@ vec4 renderGraph(vec2 t)
 	vec3 col = vec3(0.0,0.0,0.0);
 	float ty = fscale(t.y);
 
-	for (float i = 0.0;i<1.0;i+=0.05)
+	for (float i = 0.0;i<1.0;i+=0.1)
 	{
-		float s = getSample(vec2(ty,currentPosition - texel.x * i * 20.0));
+		float s = getSample(vec2(ty,currentPosition - texel.x * i * 4.0));
 
-		float a = abs(s-(t.x+i*0.3));
-        float w = 0.1 - step(0.01,i) * 0.07;
+		float a = abs(s-(t.x+i*0.1));
+        float w = 0.05 - step(0.01,i) * 0.03;
 
         a = 1.0 - smoothstep(0.0,w,a);
-		col += colscale(s) * a * 0.9;// * (1.0 - smoothstep(0.03,0.9,i) * 0.9);
+		//a = 1.0 - step(w,a);
+		col += colscale(s) * a * 0.7;// * (1.0 - smoothstep(0.03,0.9,i) * 0.9);
 	}
 
 	return vec4(col,1.0);
