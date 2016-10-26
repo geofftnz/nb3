@@ -9,7 +9,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK;
 using NLog;
 
-namespace nb3.Vis.Renderers
+namespace nb3.Vis.Renderers.Components
 {
 
     /// <summary>

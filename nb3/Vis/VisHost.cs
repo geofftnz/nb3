@@ -69,7 +69,7 @@ namespace nb3.Vis
             components.Add(font = new Font(@"res\font\lucon.ttf_sdf.1024.png", @"res\font\lucon.ttf_sdf.1024.txt"), 1);
             components.Add(text = new TextManager(), 2);
             components.Add(globalTextures);
-            components.Add(new Renderers.DebugSpectrum());
+            components.Add(new Renderers.Components.DebugSpectrum());
 
             font.Loaded += (s, e) => { text.Font = font; };
 
