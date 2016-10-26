@@ -29,7 +29,7 @@ float getSample(vec2 t)
 	//s = 4.0 * sqrt(s);
 
 	s = 20.0*log(s);
-	s = max(0.0,1.0 + ((s+20.0) / 160.0));
+	s = max(0.0,1.0 + ((s+20.0) / 200.0));
 
 	//s = 5.0 * pow(s,1.0/sqrt(2.0));
 
@@ -54,17 +54,18 @@ vec3 l2g(vec3 c)
 
 vec3 colscale(float s)
 {
-	vec3 col  = g2l(vec3(0.0,0.0,0.0   ));
-	vec3 col0 = g2l(vec3(0.0,0.0,0.2   ));
-	vec3 col1 = g2l(vec3(0.0,0.1,0.9 ));
-	vec3 col2 = g2l(vec3(0.0,0.8,0.6   ));
-	vec3 col3 = g2l(vec3(0.9,0.9,0.0  ));
-	vec3 col4 = g2l(vec3(0.9,0.0,0.0  ));
-	vec3 col5 = g2l(vec3(1.0,1.0,1.0));
+	vec3 col  = vec3(0.0,0.0,0.0   );
+
+	vec3 col0 = vec3(0.0,0.0,0.05   );
+	vec3 col1 = vec3(0.0,0.1,0.9 );
+	vec3 col2 = vec3(0.0,0.8,0.6   );
+	vec3 col3 = vec3(0.9,0.9,0.0  );
+	vec3 col4 = vec3(0.9,0.0,0.0  );
+	vec3 col5 = vec3(1.0,1.0,1.0);
 	
 	col = mix(col0,col1,clamp(s*2.5,0.0,1.0));
-	col = mix(col,col2,clamp((s-0.2)*3.0,0.0,1.0));
-	col = mix(col,col3,clamp((s-0.4)*4.0,0.0,1.0));
+	col = mix(col,col2,clamp((s-0.3)*2.0,0.0,1.0));
+	col = mix(col,col3,clamp((s-0.5)*4.0,0.0,1.0));
 	col = mix(col,col4,clamp((s-0.6)*5.0,0.0,1.0));
 	col = mix(col,col5,clamp((s-0.8)*6.0,0.0,1.0));
 
@@ -90,12 +91,15 @@ vec4 renderGraph(vec2 t)
 	vec3 col = vec3(0.0,0.0,0.0);
 	float ty = fscale(t.y);
 
-	for (float i = 0.0;i<1.0;i+=0.1)
+	for (float i = 0.0;i<1.0;i+=0.05)
 	{
-		float s = getSample(vec2(ty,currentPosition - texel.x * i * 10.0));
-		float a = abs(s-t.x);
-		a = 1.0 - smoothstep(a*a,0.0,0.0005);
-		col += colscale(s) * a * 0.6 * (1.0 - i);
+		float s = getSample(vec2(ty,currentPosition - texel.x * i * 20.0));
+
+		float a = abs(s-(t.x+i*0.3));
+        float w = 0.1 - step(0.01,i) * 0.07;
+
+        a = 1.0 - smoothstep(0.0,w,a);
+		col += colscale(s) * a * 0.9;// * (1.0 - smoothstep(0.03,0.9,i) * 0.9);
 	}
 
 	return vec4(col,1.0);
