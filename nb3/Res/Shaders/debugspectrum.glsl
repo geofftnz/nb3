@@ -10,46 +10,21 @@ void main() {
 	texcoord = vertex.xy * 0.5 + 0.5;
 }
 
-
-
-//|frag
-#version 410
-precision highp float;
-layout (location = 0) in vec2 texcoord;
-layout (location = 0) out vec4 out_Colour;
-uniform sampler2D spectrumTex;
-uniform float currentPosition;
-
-float getSample(vec2 t)
-{
-	float s = texture2D(spectrumTex,t).r;
-
-	//s = 40.0*log(s+1.0);
-
-	//s = 4.0 * sqrt(s);
-
-	s = 20.0*log(s);
-	s = max(0.0,1.0 + ((s+20.0) / 200.0));
-
-	//s = 5.0 * pow(s,1.0/sqrt(2.0));
-
-	return s;
-}
+//|common
 
 vec2 texel = vec2(1.0/1024.0,0.0);
+
+float getSample(sampler2D spectrum, vec2 t)
+{
+	float s = texture2D(spectrum,t).r;
+	s = 20.0*log(s);
+	s = max(0.0,1.0 + ((s+20.0) / 200.0));
+	return s;
+}
 
 float fscale(float x)
 {
 	return x * 0.1 + 0.9 * x * x;
-}
-
-vec3 g2l(vec3 c)
-{
-	return pow(c,vec3(2.0));
-}
-vec3 l2g(vec3 c)
-{
-	return pow(c,vec3(1.0/2.0));
 }
 
 vec3 colscale(float s)
@@ -72,11 +47,24 @@ vec3 colscale(float s)
 	return col;
 }
 
+
+//|waterfall_frag
+#version 410
+precision highp float;
+layout (location = 0) in vec2 texcoord;
+layout (location = 0) out vec4 out_Colour;
+uniform sampler2D spectrumTex;
+uniform float currentPosition;
+
+#include "Common/gamma.glsl";
+#include ".|common";
+
+
 vec4 renderSpectrum(vec2 t)
 {
 	t.x = fscale(t.x);
 
-	float s = getSample(t);
+	float s = getSample(spectrumTex,t);
 
 	vec3 col = colscale(s);
 
@@ -86,6 +74,31 @@ vec4 renderSpectrum(vec2 t)
 	return vec4(col,1.0);
 }
 
+
+void main(void)
+{
+	vec2 t = texcoord.yx;
+
+	vec4 col = renderSpectrum(t);
+	
+	// gamma
+	col.rgb = l2g(col.rgb);
+
+	out_Colour = col;	
+}
+
+//|spectrum_frag
+#version 410
+precision highp float;
+layout (location = 0) in vec2 texcoord;
+layout (location = 0) out vec4 out_Colour;
+uniform sampler2D spectrumTex;
+uniform float currentPosition;
+
+#include "Common/gamma.glsl";
+#include ".|common";
+
+
 vec4 renderGraph(vec2 t)
 {
 	vec3 col = vec3(0.0,0.0,0.0);
@@ -93,7 +106,7 @@ vec4 renderGraph(vec2 t)
 
 	for (float i = 0.0;i<1.0;i+=0.1)
 	{
-		float s = getSample(vec2(ty,currentPosition - texel.x * i * 4.0));
+		float s = getSample(spectrumTex,vec2(ty,currentPosition - texel.x * i * 4.0));
 
 		float a = abs(s-(t.x+i*0.1));
         float w = 0.05 - step(0.01,i) * 0.03;
@@ -109,21 +122,9 @@ vec4 renderGraph(vec2 t)
 
 void main(void)
 {
-	//texcoord.y *= texcoord.y;
 	vec2 t = texcoord.yx;
 
-	vec4 col;
-
-	if (t.x>0.2)
-	{
-		vec2 t2 = vec2((t.x-0.2)/0.8,t.y);
-		col = renderSpectrum(t2);
-	}
-	else
-	{
-		col = renderGraph(vec2(t.x*5.0,t.y));
-	}
-
+	vec4 col = renderGraph(t);
 	
 	// gamma
 	col.rgb = l2g(col.rgb);

@@ -12,6 +12,8 @@ using OpenTKExtensions.Text;
 using System.Diagnostics;
 using OpenTKExtensions.Filesystem;
 using System.Collections.Concurrent;
+using OpenTKExtensions.Input;
+using OpenTK.Input;
 
 namespace nb3.Vis
 {
@@ -22,6 +24,7 @@ namespace nb3.Vis
         private GameComponentCollection components = new GameComponentCollection();
         private Font font;
         private TextManager text;
+        private KeyboardActionManager keyboardActions;
 
         private TextBlock title = new TextBlock("t0", "NeuralBeat3 ©2016 Geoff Thornburrow", new Vector3(0.0f, 0.05f, 0f), 0.0005f, new Vector4(1f, 0.8f, 0.2f, 1f));
         private Matrix4 overlayProjection;
@@ -37,6 +40,21 @@ namespace nb3.Vis
 
         private float[] tempSpectrum = new float[GlobalTextures.SPECTRUMRES]; // this will be coming in from the analysis side.
 
+        private object playerPropertyLock = new object();
+        private Player.Player _player = null;
+        public Player.Player Player
+        {
+            get
+            {
+                lock (playerPropertyLock)
+                    return _player;
+            }
+            set
+            {
+                lock (playerPropertyLock)
+                    _player = value;
+            }
+        }
 
 
         public VisHost()
@@ -46,7 +64,7 @@ namespace nb3.Vis
                     "NB3",
                     GameWindowFlags.Default,
                     DisplayDevice.Default,
-                    4,0,
+                    4, 0,
                     OpenTK.Graphics.GraphicsContextFlags.ForwardCompatible
                  )
         {
@@ -60,6 +78,9 @@ namespace nb3.Vis
             this.Closed += VisHost_Closed;
             this.Closing += VisHost_Closing;
 
+            this.Keyboard.KeyDown += Keyboard_KeyDown;
+
+
 
             // framedata setup
             frameData.GlobalTextures = globalTextures;
@@ -68,13 +89,19 @@ namespace nb3.Vis
             //components.Add(font = new Font(@"res\font\calibrib.ttf_sdf.2048.png", @"res\font\calibrib.ttf_sdf.2048.txt"), 1);
             components.Add(font = new Font(@"res\font\lucon.ttf_sdf.1024.png", @"res\font\lucon.ttf_sdf.1024.txt"), 1);
             components.Add(text = new TextManager(), 2);
+            components.Add(keyboardActions = new KeyboardActionManager(), 1);
             components.Add(globalTextures);
-            components.Add(new Renderers.Components.DebugSpectrum());
+            components.Add(new Renderers.Components.DebugSpectrumWaterfall());
 
             font.Loaded += (s, e) => { text.Font = font; };
 
             // set default shader loader
             ShaderProgram.DefaultLoader = new OpenTKExtensions.Loaders.MultiPathFileSystemLoader(SHADERPATH);
+        }
+
+        private void Keyboard_KeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
+        {
+            this.keyboardActions.ProcessKeyDown(e.Key, e.Modifiers);
         }
 
         private void VisHost_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -100,11 +127,24 @@ namespace nb3.Vis
 
         private void VisHost_Load(object sender, EventArgs e)
         {
-            // create components
+            Keyboard.KeyRepeat = true;
 
             components.Load();
             SetProjection();
             timer.Start();
+            InitKeyboard();
+        }
+
+        private void InitKeyboard()
+        {
+            // winamp-style controls
+            keyboardActions.Add(Key.Left, 0, () => { Player?.Skip(-5); });
+            keyboardActions.Add(Key.Right, 0, () => { Player?.Skip(5); });
+            //keyboardActions.Add(Key.Z, 0, () => {  });  //TODO: previous in playlist
+            keyboardActions.Add(Key.X, 0, () => { Player?.Play();  });
+            keyboardActions.Add(Key.C, 0, () => { Player?.TogglePause(); });
+            keyboardActions.Add(Key.V, 0, () => { Player?.Stop(); });
+            //keyboardActions.Add(Key.B, 0, () => {  });  //TODO: next in playlist
         }
 
         private void VisHost_RenderFrame(object sender, FrameEventArgs e)

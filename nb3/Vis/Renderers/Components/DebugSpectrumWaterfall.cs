@@ -18,22 +18,22 @@ namespace nb3.Vis.Renderers.Components
     /// The texture will be supplied from the common texture set.
     /// 
     /// </summary>
-    public class DebugSpectrum : GameComponentBase, IRenderable, IUpdateable, IReloadable
+    public class DebugSpectrumWaterfall : GameComponentBase, IRenderable, IUpdateable, IReloadable
     {
         public int DrawOrder { get; set; } = 1;
         public bool Visible { get; set; } = true;
 
         // VBOs for quad
-        protected VBO vertexVBO = new VBO("debugSpectrum_q_v");
-        protected VBO indexVBO = new VBO("debugSpectrum_q_i",BufferTarget.ElementArrayBuffer);
-        protected ShaderProgram program = new ShaderProgram("debugSpectrum_sp");
+        protected VBO vertexVBO = new VBO("DebugSpectrumWaterfall_q_v");
+        protected VBO indexVBO = new VBO("DebugSpectrumWaterfall_q_i",BufferTarget.ElementArrayBuffer);
+        protected ShaderProgram program = new ShaderProgram("DebugSpectrumWaterfall_sp");
 
-        public DebugSpectrum()
+        public DebugSpectrumWaterfall()
         {
-            Loading += DebugSpectrum_Loading;
+            Loading += DebugSpectrumWaterfall_Loading;
         }
 
-        private void DebugSpectrum_Loading(object sender, EventArgs e)
+        private void DebugSpectrumWaterfall_Loading(object sender, EventArgs e)
         {
             InitVBOsq();
             Reload();
@@ -95,8 +95,8 @@ namespace nb3.Vis.Renderers.Components
         {
             var program = new ShaderProgram(this.GetType().Name);
             program.Init(
-                @"debugspectrum.glsl|vert",
-                @"debugspectrum.glsl|spectrum_frag",
+                @"DebugSpectrum.glsl|vert",
+                @"DebugSpectrum.glsl|waterfall_frag",
                 new List<Variable>
                 {
                     new Variable(0, "vertex")

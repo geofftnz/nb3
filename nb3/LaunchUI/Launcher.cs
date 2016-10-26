@@ -34,6 +34,7 @@ namespace nb3.LaunchUI
             {
                 visHost = new Vis.VisHost();
                 visHost.Closed += VisHost_Closed;
+                visHost.Player = player;
 
                 visHost.Run(60);
             }
@@ -72,6 +73,11 @@ namespace nb3.LaunchUI
             DestroyPlayer();
             player = new Player.Player(()=> new DirectSoundOut(50));
             player.SpectrumReady += Player_SpectrumReady;
+
+            if (visHost != null)
+            {
+                visHost.Player = player;
+            }
         }
 
         private void DestroyPlayer()

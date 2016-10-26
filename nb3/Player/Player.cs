@@ -108,6 +108,25 @@ namespace nb3.Player
             }
         }
 
+        public void TogglePause()
+        {
+            if (output == null)
+                return;
+
+            switch (output.PlaybackState)
+            {
+                case PlaybackState.Playing:
+                    output.Pause();
+                    break;
+                case PlaybackState.Paused:
+                    output.Play();
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
         public void Stop()
         {
             if (output == null)
@@ -124,6 +143,16 @@ namespace nb3.Player
             }
         }
 
+        public void Skip(int seconds)
+        {
+            if (reader == null || output == null)
+                return;
+
+            if (output.PlaybackState != PlaybackState.Stopped)
+            {
+                reader.Skip(seconds);
+            }
+        }
 
         public void Dispose()
         {

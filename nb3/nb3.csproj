@@ -91,6 +91,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Vis\FrameData.cs" />
     <Compile Include="Vis\GlobalTextures.cs" />
+    <Compile Include="Vis\Renderers\Components\DebugSpectrumWaterfall.cs" />
     <Compile Include="Vis\Renderers\Components\DebugSpectrum.cs" />
     <Compile Include="Vis\VisHost.cs" />
     <EmbeddedResource Include="LaunchUI\Launcher.resx">
@@ -117,6 +118,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Content Include="Res\Shaders\Common\gamma.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Res\Shaders\debugspectrum.glsl" />
   </ItemGroup>
   <ItemGroup>
