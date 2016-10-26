@@ -33,7 +33,7 @@ vec3 colscale(float s)
 
 	vec3 col0 = vec3(0.0,0.0,0.05   );
 	vec3 col1 = vec3(0.0,0.1,0.9 );
-	vec3 col2 = vec3(0.0,0.8,0.6   );
+	vec3 col2 = vec3(0.0,0.6,0.6   );
 	vec3 col3 = vec3(0.9,0.9,0.0  );
 	vec3 col4 = vec3(0.9,0.0,0.0  );
 	vec3 col5 = vec3(1.0,1.0,1.0);
