@@ -63,13 +63,20 @@ namespace nb3.Vis
         {
             get
             {
+                long correctionShift = 0;
                 estimatedSamples = (long)(timer.Elapsed.TotalSeconds * (double)(sampleRate)) + sampleCorrection;
 
-                if (estimatedSamples > TotalSamples)
-                    sampleCorrection -= estimatedSamples - TotalSamples;
 
-                if (estimatedSamples < TotalSamples - samplesPerFrame*2)
-                    sampleCorrection += (TotalSamples - samplesPerFrame) - estimatedSamples;
+                if (estimatedSamples < TotalSamples - samplesPerFrame)
+                    correctionShift += 2;
+
+                if (estimatedSamples + correctionShift > TotalSamples)
+                    correctionShift += TotalSamples - (estimatedSamples + correctionShift);
+
+                if (estimatedSamples + correctionShift < TotalSamples - 22000)
+                    correctionShift += TotalSamples - (estimatedSamples + correctionShift);
+
+                sampleCorrection += correctionShift;
 
                 return estimatedSamples;
             }

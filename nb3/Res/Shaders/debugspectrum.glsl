@@ -116,8 +116,8 @@ vec4 renderGraph(vec2 t)
 	{
 		float s = getSample(spectrumTex,vec2(ty,currentPositionEst - texel.x * i * 4.0));
 
-		float a = abs(s-(t.x+i*0.1));
-        float w = 0.05 - step(0.01,i) * 0.03;
+		float a = abs(s-(t.x+i*0.05));
+        float w = 0.05 - smoothstep(0.0,1.0,i) * 0.03;
 
         a = 1.0 - smoothstep(0.0,w,a);
 		//a = 1.0 - step(w,a);

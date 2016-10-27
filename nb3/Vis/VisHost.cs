@@ -144,7 +144,7 @@ namespace nb3.Vis
             keyboardActions.Add(Key.Left, 0, () => { Player?.Skip(-5); });
             keyboardActions.Add(Key.Right, 0, () => { Player?.Skip(5); });
             //keyboardActions.Add(Key.Z, 0, () => {  });  //TODO: previous in playlist
-            keyboardActions.Add(Key.X, 0, () => { Player?.Play();  });
+            keyboardActions.Add(Key.X, 0, () => { Player?.Play(); });
             keyboardActions.Add(Key.C, 0, () => { Player?.TogglePause(); });
             keyboardActions.Add(Key.V, 0, () => { Player?.Stop(); });
             //keyboardActions.Add(Key.B, 0, () => {  });  //TODO: next in playlist
