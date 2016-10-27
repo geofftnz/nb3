@@ -33,6 +33,7 @@ namespace nb3.Vis
         private FrameData frameData = new FrameData();
         private GlobalTextures globalTextures = new GlobalTextures();
         private Stopwatch timer = new Stopwatch();
+        private OpenTKExtensions.Components.FrameCounter frameCounter;
         private FileSystemPoller shaderUpdatePoller = new FileSystemPoller(SHADERPATH.Split(';')[0]);
         private double lastShaderPollTime = 0.0;
 
@@ -91,6 +92,7 @@ namespace nb3.Vis
             components.Add(text = new TextManager(), 2);
             components.Add(keyboardActions = new KeyboardActionManager(), 1);
             components.Add(globalTextures);
+            components.Add(frameCounter = new OpenTKExtensions.Components.FrameCounter(font));
             components.Add(new Renderers.Components.DebugSpectrumWaterfall());
 
             font.Loaded += (s, e) => { text.Font = font; };
@@ -155,7 +157,7 @@ namespace nb3.Vis
                 shaderUpdatePoller.Reset();
             }
 
-            text.AddOrUpdate(title);
+            //text.AddOrUpdate(title);
 
             GL.ClearColor(0.0f, 0.1f, 0.4f, 1.0f);
             GL.ClearDepth(1.0);
@@ -169,9 +171,10 @@ namespace nb3.Vis
             GL.Disable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
 
-            text.Render();
+            //text.Render();
 
             SwapBuffers();
+            Thread.Sleep(0);
         }
 
         private void VisHost_UpdateFrame(object sender, FrameEventArgs e)
