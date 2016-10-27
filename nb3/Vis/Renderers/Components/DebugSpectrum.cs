@@ -62,7 +62,8 @@ namespace nb3.Vis.Renderers.Components
                 .SetUniform("projectionMatrix", ProjectionMatrix)
                 .SetUniform("modelMatrix", ModelMatrix)
                 .SetUniform("viewMatrix", ViewMatrix)
-                .SetUniform("currentPosition", frameData.GlobalTextures.SamplePositionRelative);
+                .SetUniform("currentPosition", frameData.GlobalTextures.SamplePositionRelative)
+                .SetUniform("currentPositionEst", frameData.GlobalTextures.EstimatedSamplePositionRelative);
             vertexVBO.Bind(this.program.VariableLocation("vertex"));
             indexVBO.Bind();
             GL.DrawElements(BeginMode.Triangles, indexVBO.Length, DrawElementsType.UnsignedInt, 0);

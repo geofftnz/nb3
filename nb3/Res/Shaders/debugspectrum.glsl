@@ -58,6 +58,7 @@ layout (location = 0) in vec2 texcoord;
 layout (location = 0) out vec4 out_Colour;
 uniform sampler2D spectrumTex;
 uniform float currentPosition;
+uniform float currentPositionEst;
 
 #include "Common/gamma.glsl";
 #include ".|common";
@@ -72,7 +73,10 @@ vec4 renderSpectrum(vec2 t)
 	vec3 col = colscale(s);
 
 	float a = 1.0 - smoothstep(abs(currentPosition-t.y),0.0,0.5/1024.0);
-	col += vec3(0.8) * a;
+	col += vec3(1.0,0.0,0.0) * a * 0.5;
+
+	float b = 1.0 - smoothstep(abs(currentPositionEst-t.y),0.0,0.5/1024.0);
+	col += vec3(0.0,1.0,0.0) * b * 0.5;
 
 	return vec4(col,1.0);
 }
@@ -97,6 +101,7 @@ layout (location = 0) in vec2 texcoord;
 layout (location = 0) out vec4 out_Colour;
 uniform sampler2D spectrumTex;
 uniform float currentPosition;
+uniform float currentPositionEst;
 
 #include "Common/gamma.glsl";
 #include ".|common";
@@ -109,7 +114,7 @@ vec4 renderGraph(vec2 t)
 
 	for (float i = 0.0;i<1.0;i+=0.1)
 	{
-		float s = getSample(spectrumTex,vec2(ty,currentPosition - texel.x * i * 4.0));
+		float s = getSample(spectrumTex,vec2(ty,currentPositionEst - texel.x * i * 4.0));
 
 		float a = abs(s-(t.x+i*0.1));
         float w = 0.05 - step(0.01,i) * 0.03;

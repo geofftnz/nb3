@@ -43,6 +43,9 @@ namespace nb3.Player
         public event EventHandler<FftEventArgs> SpectrumReady;
         public WaveFormat WaveFormat => source.WaveFormat;
 
+        public int FrameInterval { get { return frameInterval; } }
+
+
 
         public SpectrumGenerator(ISampleProvider source)
         {
@@ -128,7 +131,7 @@ namespace nb3.Player
                 float[] f = new float[outputResolution];
                 FFT0.Generate(ringbuffer);
                 FFT0.CopyTo(f, 0, outputResolution);
-                var analysisSample = new AudioAnalysisSample(f);
+                var analysisSample = new AudioAnalysisSample(f, frameInterval);
 
                 SpectrumReady?.Invoke(this, new FftEventArgs(analysisSample));
 

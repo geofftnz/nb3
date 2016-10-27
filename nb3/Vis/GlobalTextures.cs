@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
 using OpenTKExtensions.Framework;
+using nb3.Player;
+using System.Diagnostics;
 
 namespace nb3.Vis
 {
@@ -35,6 +37,9 @@ namespace nb3.Vis
         /// </summary>
         public int SamplePosition { get; private set; } = 0;
 
+        /// <summary>
+        /// Relative position of buffer sample within texture
+        /// </summary>
         public float SamplePositionRelative
         {
             get
@@ -42,6 +47,43 @@ namespace nb3.Vis
                 return (float)SamplePosition / (float)SAMPLEHISTORY;
             }
         }
+
+        /// <summary>
+        /// Total frames received. Used to synchronize playback cursor.
+        /// </summary>
+        public long TotalSamples { get; private set; } = 0;
+
+        private Stopwatch timer = Stopwatch.StartNew();
+        private int sampleRate = 44100;  // TODO: supply this from player, or move this calc out
+        private int samplesPerFrame = 100;
+        private long estimatedSamples = 0;
+        private long sampleCorrection = 0;
+
+        public long EstimatedSamples
+        {
+            get
+            {
+                estimatedSamples = (long)(timer.Elapsed.TotalSeconds * (double)(sampleRate)) + sampleCorrection;
+
+                if (estimatedSamples > TotalSamples)
+                    sampleCorrection -= estimatedSamples - TotalSamples;
+
+                if (estimatedSamples < TotalSamples - samplesPerFrame*2)
+                    sampleCorrection += (TotalSamples - samplesPerFrame) - estimatedSamples;
+
+                return estimatedSamples;
+            }
+        }
+        public float EstimatedSamplePositionRelative
+        {
+            get
+            {
+                return (float)((EstimatedSamples / samplesPerFrame) % SAMPLEHISTORY) / (float)SAMPLEHISTORY;
+            }
+        }
+
+
+
 
         public GlobalTextures()
         {
@@ -64,15 +106,17 @@ namespace nb3.Vis
             SpectrumTex.Unload();
         }
 
-        public void PushSample(float[] spectrumData)
+        public void PushSample(AudioAnalysisSample sample)
         {
-            if (spectrumData.Length < SPECTRUMRES)
+            if (sample.Spectrum.Length < SPECTRUMRES)
                 throw new IndexOutOfRangeException("spectrumData not large enough");
 
+            samplesPerFrame = sample.Samples;
+            TotalSamples += sample.Samples;
             SamplePosition++;
             SamplePosition %= SAMPLEHISTORY;
 
-            SpectrumTex.RefreshImage(spectrumData, 0, SamplePosition, SPECTRUMRES, 1);
+            SpectrumTex.RefreshImage(sample.Spectrum, 0, SamplePosition, SPECTRUMRES, 1);
         }
     }
 }

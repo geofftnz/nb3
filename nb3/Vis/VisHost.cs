@@ -195,15 +195,8 @@ namespace nb3.Vis
 
             while (sampleQueue.TryDequeue(out sample))
             {
-                globalTextures.PushSample(sample.Spectrum);
+                globalTextures.PushSample(sample);
             }
-
-            //for (int i = 0; i < GlobalTextures.SPECTRUMRES; i++)
-            //{
-            //    tempSpectrum[i] = (float)(Math.Sin((double)i * frameData.Time * 0.0001 + Math.Sin((double)i * frameData.Time * 3.0) * 0.5) * 0.5 + 0.5);
-            //}
-
-            //globalTextures.PushSample(tempSpectrum);
 
             Thread.Sleep(0);
         }
