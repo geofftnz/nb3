@@ -3,12 +3,13 @@
 precision highp float;
 layout (location = 0) in vec3 vertex;
 layout (location = 0) out vec2 texcoord;
-uniform mat4 modelview;
-uniform mat4 projection;
+uniform mat4 projectionMatrix;
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
 
 void main() 
 {
-	gl_Position = projection * modelview * vec4(vertex.xy,0.0,1.0);
+	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vertex.xy,0.0,1.0);
 	texcoord = vertex.xy;
 }
 
