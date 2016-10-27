@@ -76,10 +76,14 @@ namespace nb3.Vis.Renderers.Components
         private void InitVBOsq()
         {
             Vector3[] vertex = {
-                                    new Vector3(-1f,1f,0f),
-                                    new Vector3(-1f,-1f,0f),
+                                    new Vector3(0f,1f,0f),
+                                    new Vector3(0f,0f,0f),
                                     new Vector3(1f,1f,0f),
-                                    new Vector3(1f,-1f,0f)
+                                    new Vector3(1f,0f,0f)
+                                    //new Vector3(-1f,1f,0f),
+                                    //new Vector3(-1f,-1f,0f),
+                                    //new Vector3(1f,1f,0f),
+                                    //new Vector3(1f,-1f,0f)
                                 };
             uint[] index = {
                                 0,1,2,
