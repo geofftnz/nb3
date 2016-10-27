@@ -18,10 +18,13 @@ namespace nb3.Vis.Renderers.Components
     /// The texture will be supplied from the common texture set.
     /// 
     /// </summary>
-    public class DebugSpectrum : GameComponentBase, IRenderable, IUpdateable, IReloadable
+    public class DebugSpectrum : GameComponentBase, IRenderable, IUpdateable, IReloadable, ITransformable
     {
         public int DrawOrder { get; set; } = 1;
         public bool Visible { get; set; } = true;
+
+        public Matrix4 ModelView { get; set; } = Matrix4.Identity;
+        public Matrix4 Projection { get; set; } = Matrix4.Identity;
 
         // VBOs for quad
         protected VBO vertexVBO = new VBO("debugSpectrum_q_v");
@@ -55,6 +58,8 @@ namespace nb3.Vis.Renderers.Components
             // render quad
             program.UseProgram()
                 .SetUniform("spectrumTex", 0)
+                .SetUniform("projection", Projection)
+                .SetUniform("modelview", ModelView)
                 .SetUniform("currentPosition", frameData.GlobalTextures.SamplePositionRelative);
             vertexVBO.Bind(this.program.VariableLocation("vertex"));
             indexVBO.Bind();
