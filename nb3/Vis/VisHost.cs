@@ -80,6 +80,7 @@ namespace nb3.Vis
             this.Closing += VisHost_Closing;
 
             this.Keyboard.KeyDown += Keyboard_KeyDown;
+            this.Keyboard.KeyUp += Keyboard_KeyUp;
 
 
 
@@ -102,9 +103,15 @@ namespace nb3.Vis
             ShaderProgram.DefaultLoader = new OpenTKExtensions.Loaders.MultiPathFileSystemLoader(SHADERPATH);
         }
 
+        private void Keyboard_KeyUp(object sender, KeyboardKeyEventArgs e)
+        {
+            this.components.ProcessKeyUp(e);
+        }
+
         private void Keyboard_KeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
         {
             this.keyboardActions.ProcessKeyDown(e.Key, e.Modifiers);
+            this.components.ProcessKeyDown(e);
         }
 
         private void VisHost_Closing(object sender, System.ComponentModel.CancelEventArgs e)
