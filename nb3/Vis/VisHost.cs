@@ -110,7 +110,7 @@ namespace nb3.Vis
 
         private void Keyboard_KeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
         {
-            this.keyboardActions.ProcessKeyDown(e.Key, e.Modifiers);
+            //this.keyboardActions.ProcessKeyDown(e.Key, e.Modifiers);
             this.components.ProcessKeyDown(e);
         }
 
@@ -204,6 +204,8 @@ namespace nb3.Vis
             {
                 globalTextures.PushSample(sample);
             }
+
+            components.Update(frameData);
 
             Thread.Sleep(0);
         }
