@@ -70,7 +70,7 @@ namespace nb3.Player
             double f2 = f * f * 0.000000136389479546262;
             double h1 = f6 + f4 - f2 + 1.0;
             double h2 = f5 - f3 + f * 0.000555948802349864;
-            return (f * 0.000124633263753214) / Math.Sqrt(h1 * h1 + h2 * h2);
+            return ((f * 0.000124633263753214) / Math.Sqrt(h1 * h1 + h2 * h2)) * 8.164645;
         }
 
     }

@@ -112,7 +112,7 @@ namespace nb3.Player
                     for(int j = 0; j < outputResolution; j++)
                     {
                         float freq = (float)j / (float)(outputResolution - 1);
-                        f[jj] *= (float)loudnessWeighting[freq] * 5.0f;
+                        f[jj] *= (float)loudnessWeighting[freq];
                         jj += MAXCHANNELS;
                     }
                 }
