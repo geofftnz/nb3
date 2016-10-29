@@ -36,7 +36,8 @@ namespace nb3.Player
         private const int MAXCHANNELS = 2;
         private const int BUFFERLEN = 8192;
         private RingBuffer<float>[] ringbuffer = new RingBuffer<float>[MAXCHANNELS];
-        //private RingBuffer<float> ringbuffer = new RingBuffer<float>(8192);
+        private LoudnessWeighting loudnessWeighting;
+
 
         private FFT fft = new FFT(fftSize);
 
@@ -50,6 +51,7 @@ namespace nb3.Player
             this.source = source;
             this.channels = source.WaveFormat.Channels;
             this.frameInterval = source.WaveFormat.SampleRate / targetFrameRate;
+            this.loudnessWeighting = new LoudnessWeighting(source.WaveFormat.SampleRate);
 
             for (int i = 0; i < MAXCHANNELS; i++)
                 ringbuffer[i] = new RingBuffer<float>(BUFFERLEN);
@@ -105,7 +107,16 @@ namespace nb3.Player
                 {
                     fft.Generate(ringbuffer[i]);
                     fft.CopyTo(f, i, outputResolution, MAXCHANNELS);
+
+                    int jj = i;
+                    for(int j = 0; j < outputResolution; j++)
+                    {
+                        float freq = (float)j / (float)(outputResolution - 1);
+                        f[jj] *= (float)loudnessWeighting[freq] * 5.0f;
+                        jj += MAXCHANNELS;
+                    }
                 }
+
 
                 var analysisSample = new AudioAnalysisSample(f, frameInterval);
 

@@ -82,6 +82,7 @@
     <Compile Include="Player\AudioAnalysisSample.cs" />
     <Compile Include="Player\AudioFileReader2.cs" />
     <Compile Include="Player\Fft.cs" />
+    <Compile Include="Player\LoudnessWeighting.cs" />
     <Compile Include="Player\Player.cs" />
     <Compile Include="Player\RingBuffer.cs" />
     <Compile Include="Player\SpectrumGenerator.cs" />
