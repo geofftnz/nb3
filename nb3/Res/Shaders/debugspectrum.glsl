@@ -15,13 +15,31 @@ void main()
 
 //|common
 
+#define PI 3.1415926535897932384626433832795
+#define PIOVER2 1.5707963267948966192313216916398
+
 vec2 texel = vec2(1.0/1024.0,0.0);
 
-float getSample(sampler2D spectrum, vec2 t)
+vec4 getSample(sampler2D spectrum, vec2 t)
 {
-	float s = texture2D(spectrum,t).r;
-	s = 20.0*log(s);
-	s = max(0.0,1.0 + ((s+20.0) / 200.0));
+	vec2 raw = texture2D(spectrum,t).rg;
+
+	float sep = asin((raw.g - raw.r) / (raw.g + raw.r)) / PIOVER2;
+
+	vec4 s = vec4(raw.rg,(raw.r+raw.g)*0.5, sep);
+
+	return s;
+}
+
+vec4 todB(vec4 s)
+{
+	s.r = 20.0*log(s.r);
+	s.g = 20.0*log(s.g);
+	s.b = 20.0*log(s.b);
+
+	s.r = max(0.0,1.0 + ((s.r+20.0) / 200.0));
+	s.g = max(0.0,1.0 + ((s.g+20.0) / 200.0));
+	s.b = max(0.0,1.0 + ((s.b+20.0) / 200.0));
 	return s;
 }
 
@@ -68,9 +86,12 @@ vec4 renderSpectrum(vec2 t)
 {
 	t.x = fscale(t.x);
 
-	float s = getSample(spectrumTex,t);
+	// spectrum
+	vec3 col = colscale(todB(getSample(spectrumTex,t)).b);
 
-	vec3 col = colscale(s);
+	// stereo separation
+	//float s = todB(getSample(spectrumTex,t)).a;
+	//vec3 col = mix(vec3(1.0,0.0,0.0), vec3(0.0,0.0,1.0), s*0.5+0.5);
 
 	float a = 1.0 - smoothstep(abs(currentPosition-t.y),0.0,0.5/1024.0);
 	col += vec3(1.0,0.0,0.0) * a * 0.5;
@@ -114,7 +135,7 @@ vec4 renderGraph(vec2 t)
 
 	for (float i = 0.0;i<1.0;i+=0.1)
 	{
-		float s = getSample(spectrumTex,vec2(ty,currentPositionEst - texel.x * i * 4.0));
+		float s = todB(getSample(spectrumTex,vec2(ty,currentPositionEst - texel.x * i * 4.0))).b;
 
 		float a = abs(s-(t.x+i*0.05));
         float w = 0.05 - smoothstep(0.0,1.0,i) * 0.03;

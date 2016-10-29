@@ -94,7 +94,7 @@ namespace nb3.Vis
 
         public GlobalTextures()
         {
-            SpectrumTex = new Texture("spectrum", SPECTRUMRES, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float);
+            SpectrumTex = new Texture("spectrum", SPECTRUMRES, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.Rg32f, PixelFormat.Rg, PixelType.Float);
 
             Loading += GlobalTextures_Loading;
             Unloading += GlobalTextures_Unloading;
@@ -115,7 +115,7 @@ namespace nb3.Vis
 
         public void PushSample(AudioAnalysisSample sample)
         {
-            if (sample.Spectrum.Length < SPECTRUMRES)
+            if (sample.Spectrum.Length < SPECTRUMRES * 2)
                 throw new IndexOutOfRangeException("spectrumData not large enough");
 
             samplesPerFrame = sample.Samples;

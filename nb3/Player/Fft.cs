@@ -64,15 +64,18 @@ namespace nb3.Player
 
         }
 
-        public void CopyTo(float[] dest, int offset, int count)
+        public void CopyTo(float[] dest, int offset, int count, int stride = 1)
         {
             int max = count;
             if (max > size / 2)
                 max = size / 2;
 
+            int desti = offset;
+
             for (int i = 0; i < max; i++)
             {
-                dest[i + offset] = (float)Math.Sqrt(fftTempComplex[i].X * fftTempComplex[i].X + fftTempComplex[i].Y * fftTempComplex[i].Y);
+                dest[desti] = (float)Math.Sqrt(fftTempComplex[i].X * fftTempComplex[i].X + fftTempComplex[i].Y * fftTempComplex[i].Y);
+                desti += stride;
             }
 
         }

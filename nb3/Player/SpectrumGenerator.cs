@@ -27,11 +27,16 @@ namespace nb3.Player
         private int channels;
 
         private const int fftSize = 2048;
+        private const int targetFrameRate = 120;
 
-        private int frameInterval = 44100 / 120;  // target 120 FPS
+        private int frameInterval = 100;
         private int sampleCounter = 0;
         private const int outputResolution = 1024;
-        private RingBuffer<float> ringbuffer = new RingBuffer<float>(8192);
+
+        private const int MAXCHANNELS = 2;
+        private const int BUFFERLEN = 8192;
+        private RingBuffer<float>[] ringbuffer = new RingBuffer<float>[MAXCHANNELS];
+        //private RingBuffer<float> ringbuffer = new RingBuffer<float>(8192);
 
         private FFT fft = new FFT(fftSize);
 
@@ -40,12 +45,14 @@ namespace nb3.Player
 
         public int FrameInterval { get { return frameInterval; } }
 
-
-
         public SpectrumGenerator(ISampleProvider source)
         {
             this.source = source;
             this.channels = source.WaveFormat.Channels;
+            this.frameInterval = source.WaveFormat.SampleRate / targetFrameRate;
+
+            for (int i = 0; i < MAXCHANNELS; i++)
+                ringbuffer[i] = new RingBuffer<float>(BUFFERLEN);
         }
 
 
@@ -68,32 +75,38 @@ namespace nb3.Player
 
             for (int i = 0; i < samplesRead; i += channels)
             {
-                // mix channels
-                // TODO: multi-channel FFT for stereo imaging.
-                float mix = 0f;
-                for (int c = 0; c < channels; c++)
-                {
-                    mix += buffer[offset + i + c];
-                }
-                mix /= channels;
-
                 // add to ring buffer
-                AddSample(mix);
+                AddSample(buffer, i, channels);
             }
 
             return samplesRead;
         }
 
-        private void AddSample(float mix)
+        private void AddSample(float[] samples, int offset, int channels)
         {
-            ringbuffer.Add(mix);
+            // mono source - copy to both channels
+            if (channels == 1)
+            {
+                ringbuffer[0].Add(samples[offset]);
+                ringbuffer[1].Add(samples[offset]);
+            }
+            else
+            {
+                ringbuffer[0].Add(samples[offset]);
+                ringbuffer[1].Add(samples[offset + 1]);
+            }
 
             sampleCounter++;
             if (sampleCounter > frameInterval)
             {
-                float[] f = new float[outputResolution];
-                fft.Generate(ringbuffer);
-                fft.CopyTo(f, 0, outputResolution);
+                float[] f = new float[outputResolution * MAXCHANNELS];
+
+                for (int i = 0; i < MAXCHANNELS; i++)
+                {
+                    fft.Generate(ringbuffer[i]);
+                    fft.CopyTo(f, i, outputResolution, MAXCHANNELS);
+                }
+
                 var analysisSample = new AudioAnalysisSample(f, frameInterval);
 
                 SpectrumReady?.Invoke(this, new FftEventArgs(analysisSample));
