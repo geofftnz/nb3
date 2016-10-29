@@ -33,6 +33,9 @@ namespace nb3.Player
         private SpectrumGenerator spectrum = null;
 
         public event EventHandler<FftEventArgs> SpectrumReady;
+        public event EventHandler<PlayerStartEventArgs> PlayerStart;
+
+        public int TracksPlayed { get; private set; } = 0;
 
         private object lockObj = new object();
 
@@ -70,12 +73,30 @@ namespace nb3.Player
             spectrum = new SpectrumGenerator(reader);
             spectrum.SpectrumReady += Spectrum_SpectrumReady;
             output.Init(spectrum);
+            TracksPlayed++;
+            InvokePlayerStart(filename);
+        }
+
+        public WaveFormat WaveFormat { get { return reader?.WaveFormat; } }
+
+        private void InvokePlayerStart(string trackName)
+        {
+            PlayerStartEventArgs e = new PlayerStartEventArgs()
+            {
+                SampleRate = reader.WaveFormat.SampleRate,
+                TrackLength = reader.TotalTime,
+                TrackName = trackName
+            };
+
+            PlayerStart?.Invoke(this, e);
         }
 
         private void Spectrum_SpectrumReady(object sender, FftEventArgs e)
         {
             SpectrumReady?.Invoke(sender, e);
         }
+
+
 
         public void Play()
         {

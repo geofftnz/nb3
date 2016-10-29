@@ -54,17 +54,25 @@ namespace nb3.Vis
         public long TotalSamples { get; private set; } = 0;
 
         private Stopwatch timer = Stopwatch.StartNew();
-        private int sampleRate = 44100;  // TODO: supply this from player, or move this calc out
+        public int SampleRate { get; set; } = 44100;  // TODO: supply this from player, or move this calc out
         private int samplesPerFrame = 100;
         private long estimatedSamples = 0;
         private long sampleCorrection = 0;
+
+        public void Reset()
+        {
+            TotalSamples = 0;
+            SamplePosition = 0;
+            sampleCorrection = 0;
+            timer = Stopwatch.StartNew();
+        }
 
         public long EstimatedSamples
         {
             get
             {
                 long correctionShift = 0;
-                estimatedSamples = (long)(timer.Elapsed.TotalSeconds * (double)(sampleRate)) + sampleCorrection;
+                estimatedSamples = (long)(timer.Elapsed.TotalSeconds * (double)(SampleRate)) + sampleCorrection;
 
 
                 if (estimatedSamples < TotalSamples - samplesPerFrame)
@@ -125,5 +133,6 @@ namespace nb3.Vis
 
             SpectrumTex.RefreshImage(sample.Spectrum, 0, SamplePosition, SPECTRUMRES, 1);
         }
+
     }
 }

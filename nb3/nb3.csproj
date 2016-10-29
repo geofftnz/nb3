@@ -84,6 +84,7 @@
     <Compile Include="Player\Fft.cs" />
     <Compile Include="Player\LoudnessWeighting.cs" />
     <Compile Include="Player\Player.cs" />
+    <Compile Include="Player\PlayerStartEventArgs.cs" />
     <Compile Include="Player\RingBuffer.cs" />
     <Compile Include="Player\SpectrumGenerator.cs" />
     <Compile Include="Playlist\Playlist.cs" />

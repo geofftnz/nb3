@@ -72,7 +72,7 @@ namespace nb3.LaunchUI
         {
             DestroyPlayer();
             player = new Player.Player(()=> new DirectSoundOut(50));
-            player.SpectrumReady += Player_SpectrumReady;
+            //player.SpectrumReady += Player_SpectrumReady;
 
             if (visHost != null)
             {
@@ -91,13 +91,13 @@ namespace nb3.LaunchUI
         }
 
 
-        private void Player_SpectrumReady(object sender, Player.FftEventArgs e)
-        {
-            if (visHost != null)
-            {
-                visHost.AddSample(e.Sample);
-            }
-        }
+        //private void Player_SpectrumReady(object sender, Player.FftEventArgs e)
+        //{
+            //if (visHost != null)
+            //{
+                //visHost.AddSample(e.Sample);
+            //}
+        //}
 
         #region PlaylistView
 

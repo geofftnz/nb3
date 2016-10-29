@@ -53,9 +53,20 @@ namespace nb3.Vis
             set
             {
                 lock (playerPropertyLock)
+                {
+                    //TODO: unhook existing events?
                     _player = value;
+                    
+                    if (_player != null)
+                    {
+                        _player.SpectrumReady += (s, e) => { AddSample(e.Sample); };
+                        //_player.PlayerStart += OnPlayerStart;
+                    }
+
+                }
             }
         }
+        private int lastTracksPlayed = 0;
 
 
         public VisHost()
@@ -197,6 +208,12 @@ namespace nb3.Vis
                 lastShaderPollTime = frameData.Time;
             }
 
+            if (Player != null && Player.TracksPlayed != lastTracksPlayed)
+            {
+                globalTextures.Reset();
+                Player?.WaveFormat.Maybe(wf => globalTextures.SampleRate = wf.SampleRate);
+                lastTracksPlayed = Player.TracksPlayed;
+            }
 
             Player.AudioAnalysisSample sample;
 
@@ -233,5 +250,11 @@ namespace nb3.Vis
         {
             sampleQueue.Enqueue(sample);
         }
+
+        //private void OnPlayerStart(object sender, Player.PlayerStartEventArgs e)
+        //{
+        //    globalTextures.SampleRate = e.SampleRate;
+        //}
+
     }
 }
