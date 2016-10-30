@@ -18,19 +18,6 @@ void main()
 #define PI 3.1415926535897932384626433832795
 #define PIOVER2 1.5707963267948966192313216916398
 
-vec2 texel = vec2(1.0/1024.0,0.0);
-
-vec4 getSample(sampler2D spectrum, vec2 t)
-{
-	vec2 raw = texture2D(spectrum,t).rg;
-
-	float sep = asin((raw.g - raw.r) / (raw.g + raw.r)) / PIOVER2;
-
-	vec4 s = vec4(raw.rg,(raw.r+raw.g)*0.5, sep);
-
-	return s;
-}
-
 vec4 todB(vec4 s)
 {
 	// ignore 4th component (stereo angle)
@@ -38,17 +25,13 @@ vec4 todB(vec4 s)
 	s.rgb = max(vec3(0.0),vec3(1.0) + ((s.rgb+vec3(20.0)) / vec3(200.0)));
 	return s;
 }
-
-vec4 scaleSpectrum(vec4 s)
+float todB(float s)
 {
-	return todB(s);
+	s = 20.0*log(s);
+	s = max(0.0,1.0 + ((s+20.0) / 200.0));
+	return s;
 }
 
-
-float fscale(float x)
-{
-	return x * 0.1 + 0.9 * x * x;
-}
 
 vec3 colscale(float s)
 {
@@ -70,6 +53,30 @@ vec3 colscale(float s)
 	return col;
 }
 
+//|spectrum_common
+vec2 texel = vec2(1.0/1024.0,0.0);
+
+vec4 getSample(sampler2D spectrum, vec2 t)
+{
+	vec2 raw = texture2D(spectrum,t).rg;
+
+	float sep = asin((raw.g - raw.r) / (raw.g + raw.r)) / PIOVER2;
+
+	vec4 s = vec4(raw.rg,(raw.r+raw.g)*0.5, sep);
+
+	return s;
+}
+
+vec4 scaleSpectrum(vec4 s)
+{
+	return todB(s);
+}
+
+float fscale(float x)
+{
+	return x * 0.1 + 0.9 * x * x;
+}
+
 
 //|waterfall_frag
 #version 410
@@ -82,7 +89,7 @@ uniform float currentPositionEst;
 
 #include "Common/gamma.glsl";
 #include ".|common";
-
+#include ".|spectrum_common";
 
 vec4 renderSpectrum(vec2 t)
 {
@@ -128,6 +135,7 @@ uniform float currentPositionEst;
 
 #include "Common/gamma.glsl";
 #include ".|common";
+#include ".|spectrum_common";
 
 
 vec4 renderGraph(vec2 t)

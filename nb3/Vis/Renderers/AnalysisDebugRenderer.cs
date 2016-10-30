@@ -36,7 +36,7 @@ namespace nb3.Vis.Renderers
             projection = Matrix4.CreateOrthographicOffCenter(0f, 1f, 0f, 1f, 0.0f, 10f);
             waterfallModel = Matrix4.CreateScale(1.0f, 0.8f, 1.0f) * Matrix4.CreateTranslation(0.0f, 0.2f, 0.0f);
             spectrumModel = Matrix4.CreateScale(1.0f, 0.2f, 1.0f) * Matrix4.CreateTranslation(0.0f, 0.0f, 0.0f);
-            audioDataModel = Matrix4.CreateScale(1.0f, 2.0f, 1.0f) * Matrix4.CreateTranslation(0.0f, -2.0f, 0.0f);
+            audioDataModel = Matrix4.CreateScale(1.0f, 20.0f, 1.0f) * Matrix4.CreateTranslation(0.0f, -20.0f, 0.0f);
 
             components.Add(waterfall = new DebugSpectrumWaterfall() { DrawOrder = 1, ModelMatrix = waterfallModel, ProjectionMatrix = projection });
             components.Add(spectrum = new DebugSpectrum() { DrawOrder = 2, ModelMatrix = spectrumModel, ProjectionMatrix = projection });

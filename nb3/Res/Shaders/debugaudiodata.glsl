@@ -13,45 +13,6 @@ void main()
 	texcoord = vertex.xy;
 }
 
-//|common
-
-#define PI 3.1415926535897932384626433832795
-#define PIOVER2 1.5707963267948966192313216916398
-
-vec2 texel = vec2(1.0/1024.0,0.0);
-
-vec4 getSample(sampler2D spectrum, vec2 t)
-{
-	vec2 raw = texture2D(spectrum,t).rg;
-
-	float sep = asin((raw.g - raw.r) / (raw.g + raw.r)) / PIOVER2;
-
-	vec4 s = vec4(raw.rg,(raw.r+raw.g)*0.5, sep);
-
-	return s;
-}
-
-
-vec3 colscale(float s)
-{
-	vec3 col  = vec3(0.0,0.0,0.0   );
-
-	vec3 col0 = vec3(0.0,0.0,0.05   );
-	vec3 col1 = vec3(0.0,0.1,0.9 );
-	vec3 col2 = vec3(0.0,0.6,0.6   );
-	vec3 col3 = vec3(0.9,0.9,0.0  );
-	vec3 col4 = vec3(0.9,0.0,0.0  );
-	vec3 col5 = vec3(1.0,1.0,1.0);
-	
-	col = mix(col0,col1,clamp(s*2.5,0.0,1.0));
-	col = mix(col,col2,clamp((s-0.3)*2.0,0.0,1.0));
-	col = mix(col,col3,clamp((s-0.5)*4.0,0.0,1.0));
-	col = mix(col,col4,clamp((s-0.6)*5.0,0.0,1.0));
-	col = mix(col,col5,clamp((s-0.8)*6.0,0.0,1.0));
-
-	return col;
-}
-
 
 //|frag
 #version 410
@@ -63,18 +24,41 @@ uniform float currentPosition;
 uniform float currentPositionEst;
 
 #include "Common/gamma.glsl";
-#include ".|common";
+#include "debugspectrum.glsl|common";
+
+#define DATARES 256
+
+float stexel = 1.0/DATARES;
+float ttexel = 1.0/1024.0;
+
+
+float getSample(sampler2D tex, vec2 t)
+{
+	float s = texture2D(tex,t).r;
+	s = todB(s);
+	return s;
+}
 
 
 void main(void)
 {
 	vec2 t = texcoord.yx;
+	t.x = 1.0 - t.x;  // invert y
 
-	vec4 col = vec4(1.0,0.0,0.0,1.0);
+	float index = floor(t.x * DATARES) / DATARES;
+	float offset = 1.0 - fract(t.x * DATARES);
+
+	float s = getSample(audioDataTex,vec2(index,t.y));
+
+	//s *= 10.0;
+
+	float a = 1.0 - smoothstep(0.0,0.05,abs(s - offset));
+	
+	vec3 col = colscale(s) * a * 2.0;
 	
 	// gamma
 	col.rgb = l2g(col.rgb);
 
-	out_Colour = col;	
+	out_Colour = vec4(col,1.0);	
 }
 
