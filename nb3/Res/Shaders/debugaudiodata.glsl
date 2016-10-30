@@ -45,7 +45,7 @@ void main(void)
 	vec2 t = texcoord.yx;
 	t.x = 1.0 - t.x;  // invert y
 
-	float index = floor(t.x * DATARES) / DATARES;
+	float index = (floor(t.x * DATARES) / DATARES) + stexel * 0.5;
 	float offset = 1.0 - fract(t.x * DATARES);
 
 	float s = getSample(audioDataTex,vec2(index,t.y));

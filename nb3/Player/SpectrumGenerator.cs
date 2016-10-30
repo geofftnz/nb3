@@ -122,8 +122,15 @@ namespace nb3.Player
                 // temporary audio data
                 for (int i = 0; i < 256; i++)
                 {
-                    audioData[i] = (f[i * 2] + f[i * 2 + 1]) * 0.5f;
+                    //audioData[i] = (f[i * 2] + f[i * 2 + 1]) * 0.5f;
+                    audioData[i] = 0f;
                 }
+                for (int i = 0; i < 32; i++)
+                {
+                    audioData[1] += f[i];
+                }
+                audioData[1] /= 32f;
+
                 // TODO: pass spectrum off for further processing into audioData[]
 
                 var analysisSample = new AudioAnalysisSample(f, audioData, frameInterval);
