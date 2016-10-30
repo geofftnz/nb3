@@ -17,11 +17,13 @@ namespace nb3.Vis.Renderers
     {
         private DebugSpectrumWaterfall waterfall;
         private DebugSpectrum spectrum;
+        private DebugAudioData datagraphs;
 
         private Matrix4 projection = Matrix4.Identity;
         private Matrix4 view = Matrix4.Identity;
         private Matrix4 waterfallModel = Matrix4.Identity;
         private Matrix4 spectrumModel = Matrix4.Identity;
+        private Matrix4 audioDataModel = Matrix4.Identity;
 
         private KeyboardActionManager keyboardActions;
 
@@ -34,9 +36,11 @@ namespace nb3.Vis.Renderers
             projection = Matrix4.CreateOrthographicOffCenter(0f, 1f, 0f, 1f, 0.0f, 10f);
             waterfallModel = Matrix4.CreateScale(1.0f, 0.8f, 1.0f) * Matrix4.CreateTranslation(0.0f, 0.2f, 0.0f);
             spectrumModel = Matrix4.CreateScale(1.0f, 0.2f, 1.0f) * Matrix4.CreateTranslation(0.0f, 0.0f, 0.0f);
+            audioDataModel = Matrix4.CreateScale(1.0f, 2.0f, 1.0f) * Matrix4.CreateTranslation(0.0f, -2.0f, 0.0f);
 
             components.Add(waterfall = new DebugSpectrumWaterfall() { DrawOrder = 1, ModelMatrix = waterfallModel, ProjectionMatrix = projection });
             components.Add(spectrum = new DebugSpectrum() { DrawOrder = 2, ModelMatrix = spectrumModel, ProjectionMatrix = projection });
+            components.Add(datagraphs = new DebugAudioData() { DrawOrder = 3, ModelMatrix = audioDataModel, ProjectionMatrix = projection });
             components.Add(keyboardActions = new KeyboardActionManager(), 1);
 
             keyboardActions.Add(Key.Up, 0, () => { ypostarget -= yshift;  });

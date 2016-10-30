@@ -33,15 +33,17 @@ vec4 getSample(sampler2D spectrum, vec2 t)
 
 vec4 todB(vec4 s)
 {
-	s.r = 20.0*log(s.r);
-	s.g = 20.0*log(s.g);
-	s.b = 20.0*log(s.b);
-
-	s.r = max(0.0,1.0 + ((s.r+20.0) / 200.0));
-	s.g = max(0.0,1.0 + ((s.g+20.0) / 200.0));
-	s.b = max(0.0,1.0 + ((s.b+20.0) / 200.0));
+	// ignore 4th component (stereo angle)
+	s.rgb = 20.0*log(s.rgb);
+	s.rgb = max(vec3(0.0),vec3(1.0) + ((s.rgb+vec3(20.0)) / vec3(200.0)));
 	return s;
 }
+
+vec4 scaleSpectrum(vec4 s)
+{
+	return todB(s);
+}
+
 
 float fscale(float x)
 {
@@ -87,7 +89,7 @@ vec4 renderSpectrum(vec2 t)
 	t.x = fscale(t.x);
 
 	// spectrum
-	vec3 col = colscale(todB(getSample(spectrumTex,t)).b);
+	vec3 col = colscale(scaleSpectrum(getSample(spectrumTex,t)).b);
 
 	// stereo separation
 	//float s = todB(getSample(spectrumTex,t)).a;
@@ -135,7 +137,7 @@ vec4 renderGraph(vec2 t)
 
 	for (float i = 0.0;i<1.0;i+=0.1)
 	{
-		float s = todB(getSample(spectrumTex,vec2(ty,currentPositionEst - texel.x * i * 4.0))).b;
+		float s = scaleSpectrum(getSample(spectrumTex,vec2(ty,currentPositionEst - texel.x * i * 4.0))).b;
 
 		float a = abs(s-(t.x+i*0.05));
         float w = 0.05 - smoothstep(0.0,1.0,i) * 0.03;

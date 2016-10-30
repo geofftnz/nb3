@@ -94,6 +94,7 @@
     <Compile Include="Vis\FrameData.cs" />
     <Compile Include="Vis\GlobalTextures.cs" />
     <Compile Include="Vis\Renderers\AnalysisDebugRenderer.cs" />
+    <Compile Include="Vis\Renderers\Components\DebugAudioData.cs" />
     <Compile Include="Vis\Renderers\Components\DebugSpectrumWaterfall.cs" />
     <Compile Include="Vis\Renderers\Components\DebugSpectrum.cs" />
     <Compile Include="Vis\VisHost.cs" />
@@ -109,7 +110,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <None Include="nlog.config" />
+    <Content Include="nlog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -122,6 +125,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Content Include="Res\Shaders\Common\gamma.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\Shaders\debugaudiodata.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Res\Shaders\debugspectrum.glsl" />

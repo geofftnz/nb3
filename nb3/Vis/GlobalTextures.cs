@@ -30,7 +30,13 @@ namespace nb3.Vis
         /// </summary>
         public const int SPECTRUMRES = 1024;
 
+        /// <summary>
+        /// Number of elements in the data buffer
+        /// </summary>
+        public const int DATARES = 256;
+
         public Texture SpectrumTex { get; private set; }
+        public Texture AudioDataTex { get; private set; }
 
         /// <summary>
         /// Texture V coordinate of last sample written.
@@ -54,7 +60,7 @@ namespace nb3.Vis
         public long TotalSamples { get; private set; } = 0;
 
         private Stopwatch timer = Stopwatch.StartNew();
-        public int SampleRate { get; set; } = 44100;  // TODO: supply this from player, or move this calc out
+        public int SampleRate { get; set; } = 44100; 
         private int samplesPerFrame = 100;
         private long estimatedSamples = 0;
         private long sampleCorrection = 0;
@@ -103,6 +109,7 @@ namespace nb3.Vis
         public GlobalTextures()
         {
             SpectrumTex = new Texture("spectrum", SPECTRUMRES, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.Rg32f, PixelFormat.Rg, PixelType.Float);
+            AudioDataTex = new Texture("audiodata", DATARES, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float);
 
             Loading += GlobalTextures_Loading;
             Unloading += GlobalTextures_Unloading;
@@ -115,10 +122,17 @@ namespace nb3.Vis
             SpectrumTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge));
             SpectrumTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat));
             SpectrumTex.UploadEmpty();
+
+            AudioDataTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest));
+            AudioDataTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest));
+            AudioDataTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge));
+            AudioDataTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat));
+            AudioDataTex.UploadEmpty();
         }
         private void GlobalTextures_Unloading(object sender, EventArgs e)
         {
             SpectrumTex.Unload();
+            AudioDataTex.Unload();
         }
 
         public void PushSample(AudioAnalysisSample sample)
@@ -132,6 +146,7 @@ namespace nb3.Vis
             SamplePosition %= SAMPLEHISTORY;
 
             SpectrumTex.RefreshImage(sample.Spectrum, 0, SamplePosition, SPECTRUMRES, 1);
+            AudioDataTex.RefreshImage(sample.AudioData, 0, SamplePosition, DATARES, 1);
         }
 
     }

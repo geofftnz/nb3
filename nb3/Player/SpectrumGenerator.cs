@@ -117,8 +117,16 @@ namespace nb3.Player
                     }
                 }
 
+                float[] audioData = new float[256];// TODO: Move sizes to global class
 
-                var analysisSample = new AudioAnalysisSample(f, frameInterval);
+                // temporary audio data
+                for (int i = 0; i < 256; i++)
+                {
+                    audioData[i] = (f[i * 2] + f[i * 2 + 1]) * 0.5f;
+                }
+                // TODO: pass spectrum off for further processing into audioData[]
+
+                var analysisSample = new AudioAnalysisSample(f, audioData, frameInterval);
 
                 SpectrumReady?.Invoke(this, new FftEventArgs(analysisSample));
 
