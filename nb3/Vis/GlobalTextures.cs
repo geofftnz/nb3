@@ -8,6 +8,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTKExtensions.Framework;
 using nb3.Player;
 using System.Diagnostics;
+using nb3.Player.Analysis;
 
 namespace nb3.Vis
 {

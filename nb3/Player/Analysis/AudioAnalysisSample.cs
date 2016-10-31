@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace nb3.Player
+namespace nb3.Player.Analysis
 {
     /// <summary>
     /// Represents a single sample of audio analysis to be passed to the renderer.

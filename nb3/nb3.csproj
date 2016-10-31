@@ -79,14 +79,14 @@
     <Compile Include="LaunchUI\Launcher.Designer.cs">
       <DependentUpon>Launcher.cs</DependentUpon>
     </Compile>
-    <Compile Include="Player\AudioAnalysisSample.cs" />
+    <Compile Include="Player\Analysis\AudioAnalysisSample.cs" />
     <Compile Include="Player\AudioFileReader2.cs" />
-    <Compile Include="Player\Fft.cs" />
-    <Compile Include="Player\LoudnessWeighting.cs" />
+    <Compile Include="Player\Analysis\Fft.cs" />
+    <Compile Include="Player\Analysis\LoudnessWeighting.cs" />
     <Compile Include="Player\Player.cs" />
     <Compile Include="Player\PlayerStartEventArgs.cs" />
-    <Compile Include="Player\RingBuffer.cs" />
-    <Compile Include="Player\SpectrumGenerator.cs" />
+    <Compile Include="Player\Analysis\RingBuffer.cs" />
+    <Compile Include="Player\Analysis\SpectrumGenerator.cs" />
     <Compile Include="Playlist\Playlist.cs" />
     <Compile Include="Playlist\PlaylistItem.cs" />
     <Compile Include="Program.cs" />

@@ -7,6 +7,7 @@ using NAudio;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System.Threading;
+using nb3.Player.Analysis;
 
 namespace nb3.Player
 {

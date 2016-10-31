@@ -1,5 +1,6 @@
 ﻿using NAudio.Dsp;
 using NAudio.Wave;
+using nb3.Player.Analysis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace nb3.Player
+namespace nb3.Player.Analysis
 {
     /// <summary>
     /// Generates FFT spectrums from audio.

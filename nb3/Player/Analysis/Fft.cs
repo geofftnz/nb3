@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace nb3.Player
+namespace nb3.Player.Analysis
 {
     /// <summary>
     /// Wraps up a given-sized FFT in a way designed for multiple calls.

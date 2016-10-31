@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace nb3.Player
+namespace nb3.Player.Analysis
 {
     /// <summary>
     /// Simple ring buffer.
