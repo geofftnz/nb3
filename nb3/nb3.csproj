@@ -81,6 +81,7 @@
     </Compile>
     <Compile Include="Player\Analysis\AudioAnalysisSample.cs" />
     <Compile Include="Player\Analysis\LoudnessWeighting\ILoudnessWeighting.cs" />
+    <Compile Include="Player\Analysis\LoudnessWeighting\A_Weighting.cs" />
     <Compile Include="Player\Analysis\LoudnessWeighting\ITU_T_468_Weighting.cs" />
     <Compile Include="Player\AudioFileReader2.cs" />
     <Compile Include="Player\Analysis\Fft.cs" />

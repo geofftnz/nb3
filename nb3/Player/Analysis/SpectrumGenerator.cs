@@ -54,6 +54,7 @@ namespace nb3.Player.Analysis
             this.channels = source.WaveFormat.Channels;
             this.frameInterval = source.WaveFormat.SampleRate / targetFrameRate;
             this.loudnessWeighting = new ITU_T_468_Weighting(source.WaveFormat.SampleRate);
+            //this.loudnessWeighting = new A_Weighting(source.WaveFormat.SampleRate);
 
             for (int i = 0; i < MAXCHANNELS; i++)
                 ringbuffer[i] = new RingBuffer<float>(BUFFERLEN);
