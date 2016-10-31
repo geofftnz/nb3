@@ -1,6 +1,7 @@
 ﻿using NAudio.Dsp;
 using NAudio.Wave;
 using nb3.Player.Analysis;
+using nb3.Player.Analysis.LoudnessWeighting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -37,7 +38,7 @@ namespace nb3.Player.Analysis
         private const int MAXCHANNELS = 2;
         private const int BUFFERLEN = 8192;
         private RingBuffer<float>[] ringbuffer = new RingBuffer<float>[MAXCHANNELS];
-        private LoudnessWeighting loudnessWeighting;
+        private ILoudnessWeighting loudnessWeighting;
 
 
         private FFT fft = new FFT(fftSize);
@@ -52,7 +53,7 @@ namespace nb3.Player.Analysis
             this.source = source;
             this.channels = source.WaveFormat.Channels;
             this.frameInterval = source.WaveFormat.SampleRate / targetFrameRate;
-            this.loudnessWeighting = new LoudnessWeighting(source.WaveFormat.SampleRate);
+            this.loudnessWeighting = new ITU_T_468_Weighting(source.WaveFormat.SampleRate);
 
             for (int i = 0; i < MAXCHANNELS; i++)
                 ringbuffer[i] = new RingBuffer<float>(BUFFERLEN);

@@ -80,9 +80,11 @@
       <DependentUpon>Launcher.cs</DependentUpon>
     </Compile>
     <Compile Include="Player\Analysis\AudioAnalysisSample.cs" />
+    <Compile Include="Player\Analysis\LoudnessWeighting\ILoudnessWeighting.cs" />
+    <Compile Include="Player\Analysis\LoudnessWeighting\ITU_T_468_Weighting.cs" />
     <Compile Include="Player\AudioFileReader2.cs" />
     <Compile Include="Player\Analysis\Fft.cs" />
-    <Compile Include="Player\Analysis\LoudnessWeighting.cs" />
+    <Compile Include="Player\Analysis\LoudnessWeighting\LoudnessWeighting.cs" />
     <Compile Include="Player\Player.cs" />
     <Compile Include="Player\PlayerStartEventArgs.cs" />
     <Compile Include="Player\Analysis\RingBuffer.cs" />
