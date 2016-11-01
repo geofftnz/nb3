@@ -1,5 +1,6 @@
 ﻿using NAudio.Dsp;
 using NAudio.Wave;
+using nb3.Common;
 using nb3.Player.Analysis;
 using nb3.Player.Analysis.LoudnessWeighting;
 using System;
@@ -120,10 +121,10 @@ namespace nb3.Player.Analysis
                     }
                 }
 
-                float[] audioData = new float[256];// TODO: Move sizes to global class
+                float[] audioData = new float[Globals.AUDIODATASIZE];
 
                 // temporary audio data
-                for (int i = 0; i < 256; i++)
+                for (int i = 0; i < Globals.AUDIODATASIZE; i++)
                 {
                     //audioData[i] = (f[i * 2] + f[i * 2 + 1]) * 0.5f;
                     audioData[i] = 0f;

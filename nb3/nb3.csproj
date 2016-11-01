@@ -73,6 +73,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\Globals.cs" />
+    <Compile Include="Common\MathExt.cs" />
     <Compile Include="LaunchUI\Launcher.cs">
       <SubType>Form</SubType>
     </Compile>

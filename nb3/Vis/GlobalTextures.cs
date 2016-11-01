@@ -9,6 +9,7 @@ using OpenTKExtensions.Framework;
 using nb3.Player;
 using System.Diagnostics;
 using nb3.Player.Analysis;
+using nb3.Common;
 
 namespace nb3.Vis
 {
@@ -31,10 +32,6 @@ namespace nb3.Vis
         /// </summary>
         public const int SPECTRUMRES = 1024;
 
-        /// <summary>
-        /// Number of elements in the data buffer
-        /// </summary>
-        public const int DATARES = 256;
 
         public Texture SpectrumTex { get; private set; }
         public Texture AudioDataTex { get; private set; }
@@ -110,7 +107,7 @@ namespace nb3.Vis
         public GlobalTextures()
         {
             SpectrumTex = new Texture("spectrum", SPECTRUMRES, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.Rg32f, PixelFormat.Rg, PixelType.Float);
-            AudioDataTex = new Texture("audiodata", DATARES, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float);
+            AudioDataTex = new Texture("audiodata", Globals.AUDIODATASIZE, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float);
 
             Loading += GlobalTextures_Loading;
             Unloading += GlobalTextures_Unloading;
@@ -147,7 +144,7 @@ namespace nb3.Vis
             SamplePosition %= SAMPLEHISTORY;
 
             SpectrumTex.RefreshImage(sample.Spectrum, 0, SamplePosition, SPECTRUMRES, 1);
-            AudioDataTex.RefreshImage(sample.AudioData, 0, SamplePosition, DATARES, 1);
+            AudioDataTex.RefreshImage(sample.AudioData, 0, SamplePosition, Globals.AUDIODATASIZE, 1);
         }
 
     }
