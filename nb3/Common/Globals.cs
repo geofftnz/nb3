@@ -8,6 +8,7 @@ namespace nb3.Common
 {
     public class Globals
     {
-        public static int AUDIODATASIZE = 256;
+        public const int SPECTRUMRES = 1024;
+        public const int AUDIODATASIZE = 256;
     }
 }

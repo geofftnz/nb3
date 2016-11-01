@@ -35,7 +35,7 @@ float ttexel = 1.0/1024.0;
 float getSample(sampler2D tex, vec2 t)
 {
 	float s = texture2D(tex,t).r;
-	s = todB(s);
+	//s = todB(s);
 	return s;
 }
 

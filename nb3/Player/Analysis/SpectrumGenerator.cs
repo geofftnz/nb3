@@ -29,17 +29,19 @@ namespace nb3.Player.Analysis
         private ISampleProvider source;
         private int channels;
 
-        private const int fftSize = 2048;
+        private const int fftSize = Globals.SPECTRUMRES * 2;
         private const int targetFrameRate = 120;
 
         private int frameInterval = 100;
         private int sampleCounter = 0;
-        private const int outputResolution = 1024;
+        private const int outputResolution = Globals.SPECTRUMRES;
 
         private const int MAXCHANNELS = 2;
         private const int BUFFERLEN = 8192;
         private RingBuffer<float>[] ringbuffer = new RingBuffer<float>[MAXCHANNELS];
         private ILoudnessWeighting loudnessWeighting;
+
+        private SpectrumAnalyser analyser = new SpectrumAnalyser();
 
 
         private FFT fft = new FFT(fftSize);
@@ -121,23 +123,9 @@ namespace nb3.Player.Analysis
                     }
                 }
 
-                float[] audioData = new float[Globals.AUDIODATASIZE];
+                var analysisSample = new AudioAnalysisSample(f, new float[Globals.AUDIODATASIZE], frameInterval);
 
-                // temporary audio data
-                for (int i = 0; i < Globals.AUDIODATASIZE; i++)
-                {
-                    //audioData[i] = (f[i * 2] + f[i * 2 + 1]) * 0.5f;
-                    audioData[i] = 0f;
-                }
-                for (int i = 0; i < 32; i++)
-                {
-                    audioData[1] += f[i];
-                }
-                audioData[1] /= 32f;
-
-                // TODO: pass spectrum off for further processing into audioData[]
-
-                var analysisSample = new AudioAnalysisSample(f, audioData, frameInterval);
+                analyser.Process(analysisSample);
 
                 SpectrumReady?.Invoke(this, new FftEventArgs(analysisSample));
 

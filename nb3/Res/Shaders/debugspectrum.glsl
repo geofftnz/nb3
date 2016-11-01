@@ -17,12 +17,18 @@ void main()
 
 #define PI 3.1415926535897932384626433832795
 #define PIOVER2 1.5707963267948966192313216916398
+#define LOGe10 2.30258509299;
+
+vec3 log10(vec3 s)
+{
+	return log(s.rgb) / LOGe10;
+}
 
 vec4 todB(vec4 s)
 {
 	// ignore 4th component (stereo angle)
-	s.rgb = 20.0*log(s.rgb);
-	s.rgb = max(vec3(0.0),vec3(1.0) + ((s.rgb+vec3(20.0)) / vec3(200.0)));
+	s.rgb = 20.0*log10(s.rgb);
+	s.rgb = max(vec3(0.0),vec3(1.0) + (s.rgb / vec3(100.0)));
 	return s;
 }
 float todB(float s)
