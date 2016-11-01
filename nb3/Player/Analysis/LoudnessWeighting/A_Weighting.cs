@@ -19,7 +19,9 @@ namespace nb3.Player.Analysis.LoudnessWeighting
         }
 
         /// <summary>
-        /// Calculates the ITU-T-468 weighting
+        /// Calculates the A weighting.
+        /// 
+        /// This is the standard frequency weighting for noise measurements, but it's a bit shit.
         /// </summary>
         /// <param name="f">Frequency in Hz</param>
         /// <returns></returns>
