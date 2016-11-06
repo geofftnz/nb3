@@ -38,15 +38,13 @@ namespace nb3.Player.Analysis
 
         private const int MAXCHANNELS = 2;
         private const int BUFFERLEN = 8192;
-        //private RingBuffer<float>[] ringbuffer = new RingBuffer<float>[MAXCHANNELS];
 
         private BufferedFFT[] fft = new BufferedFFT[MAXCHANNELS];
+        private BufferedFFT fft2;
 
         private ILoudnessWeighting loudnessWeighting;
 
         private SpectrumAnalyser analyser = new SpectrumAnalyser();
-
-        //private FFT fft = new FFT(fftSize);
 
         public event EventHandler<FftEventArgs> SpectrumReady;
         public WaveFormat WaveFormat => source.WaveFormat;
@@ -58,11 +56,13 @@ namespace nb3.Player.Analysis
             this.source = source;
             this.channels = source.WaveFormat.Channels;
             this.frameInterval = source.WaveFormat.SampleRate / targetFrameRate;
-            this.loudnessWeighting = new ITU_T_468_Weighting(source.WaveFormat.SampleRate);
+            this.loudnessWeighting = new ITU_T_468_Weighting(source.WaveFormat.SampleRate/2);
             //this.loudnessWeighting = new A_Weighting(source.WaveFormat.SampleRate);
 
             for (int i = 0; i < MAXCHANNELS; i++)
                 fft[i] = new BufferedFFT(BUFFERLEN, fftSize, loudnessWeighting);
+
+            fft2 = new BufferedFFT(outputResolution * 4, outputResolution, new NullWeighting(outputResolution / 2));
         }
 
 
