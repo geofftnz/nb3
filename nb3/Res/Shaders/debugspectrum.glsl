@@ -150,7 +150,7 @@ float scaleSpectrum2(float s)
 
 vec4 renderSpectrum(vec2 t)
 {
-	//t.x = sqrt(t.x);
+	t.x = t.x*t.x;
 
 	// spectrum
 	vec3 col = colscale(scaleSpectrum2(texture2D(spectrumTex,t).r));

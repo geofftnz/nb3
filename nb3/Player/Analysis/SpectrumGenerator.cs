@@ -35,7 +35,7 @@ namespace nb3.Player.Analysis
         private int frameInterval = 100;
         private int sampleCounter = 0;
         private const int outputResolution = Globals.SPECTRUMRES;
-        private const int outputResolution2 = Globals.SPECTRUMRES/2;
+        private const int outputResolution2 = Globals.SPECTRUMRES / 2;
 
         private const int MAXCHANNELS = 2;
         private const int BUFFERLEN = 8192;
@@ -57,7 +57,7 @@ namespace nb3.Player.Analysis
             this.source = source;
             this.channels = source.WaveFormat.Channels;
             this.frameInterval = source.WaveFormat.SampleRate / targetFrameRate;
-            this.loudnessWeighting = new ITU_T_468_Weighting(source.WaveFormat.SampleRate/2);
+            this.loudnessWeighting = new ITU_T_468_Weighting(source.WaveFormat.SampleRate / 2);
             //this.loudnessWeighting = new A_Weighting(source.WaveFormat.SampleRate);
 
             for (int i = 0; i < MAXCHANNELS; i++)
@@ -93,6 +93,8 @@ namespace nb3.Player.Analysis
             return samplesRead;
         }
 
+        //private float[] mixtemp = new float[outputResolution2];
+
         private void AddSample(float[] samples, int offset, int channels)
         {
             // mono source - copy to both channels
@@ -118,7 +120,8 @@ namespace nb3.Player.Analysis
                 }
 
                 float[] f2 = new float[outputResolution2];
-                fft2.Add(MixChannels(f, outputResolution * MAXCHANNELS, MAXCHANNELS).Select(x => x / (float)MAXCHANNELS));
+                var mixtemp = MixChannels(f, outputResolution * MAXCHANNELS, MAXCHANNELS).Select(x => x / (float)MAXCHANNELS).ToArray();
+                fft2.Add(Resample(mixtemp, outputResolution2, x => x*x));
                 fft2.GenerateTo(f2, 0, outputResolution2);
 
                 var analysisSample = new AudioAnalysisSample(f, f2, new float[Globals.AUDIODATASIZE], frameInterval);
@@ -135,7 +138,7 @@ namespace nb3.Player.Analysis
         {
             float total = 0f;
             int c = MAXCHANNELS;
-            for (int i=0;i<count;i++)
+            for (int i = 0; i < count; i++)
             {
                 total += samples[i];
                 if (--c == 0)
@@ -145,6 +148,28 @@ namespace nb3.Player.Analysis
                     total = 0f;
                 }
             }
+        }
+
+        private IEnumerable<float> Resample(float[] src, int count, Func<float, float> remap)
+        {
+            int srcmax = src.Length - 1;
+            int destmax = count - 1;
+            float[] offset = new float[] { -0.7f, -0.3f, 0.0f, 0.3f, 0.7f };
+
+            for (int i = 0; i <= destmax; i++)
+            {
+                float total = 0f;
+
+                for (int j = 0; j < offset.Length; j++)
+                {
+                    float di = ((float)i + offset[j]) / (float)destmax;
+                    int si = (int)(Math.Max(0f, Math.Min(1f, remap(Math.Max(0f, Math.Min(1f, di))))) * srcmax);
+                    total += src[si];
+                }
+
+                yield return total / (float)offset.Length;
+            }
+
         }
 
     }
