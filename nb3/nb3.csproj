@@ -92,7 +92,7 @@
     <Compile Include="Player\Analysis\SpectrumAnalyser.cs" />
     <Compile Include="Player\AudioFileReader2.cs" />
     <Compile Include="Player\Analysis\Fft.cs" />
-    <Compile Include="Player\Analysis\LoudnessWeighting\LoudnessWeighting.cs" />
+    <Compile Include="Player\Analysis\LoudnessWeighting\LoudnessWeightingBase.cs" />
     <Compile Include="Player\Analysis\BufferedFft.cs" />
     <Compile Include="Player\Player.cs" />
     <Compile Include="Player\PlayerStartEventArgs.cs" />

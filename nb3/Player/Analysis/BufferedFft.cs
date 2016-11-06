@@ -25,7 +25,7 @@ namespace nb3.Player.Analysis
 
             this.bufferSize = bufferSize;
             this.fftSize = fftSize;
-            this.LoudnessWeighting = weighting != null ? weighting : new NullWeighting(fftSize/2);
+            this.LoudnessWeighting = weighting != null ? weighting : new NullWeighting(fftSize/4);
 
             ringBuffer = new RingBuffer<float>(bufferSize);
             fft = new FFT(fftSize);
@@ -39,7 +39,7 @@ namespace nb3.Player.Analysis
         public void GenerateTo(float[] dest, int offset, int count, int stride = 1)
         {
             fft.Generate(ringBuffer);
-            fft.CopyTo(dest, offset, count, stride);
+            fft.CopyTo(dest, offset, count, stride, LoudnessWeighting);
         }
     }
 }

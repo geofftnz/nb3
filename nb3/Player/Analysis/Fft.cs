@@ -93,7 +93,9 @@ namespace nb3.Player.Analysis
 
             for (int i = 0; i < max; i++)
             {
-                dest[desti] = (float)(Math.Sqrt(fftTempComplex[i].X * fftTempComplex[i].X + fftTempComplex[i].Y * fftTempComplex[i].Y) * weighting[i]);
+                float freq = (float)i / (float)((size / 2) - 1);
+
+                dest[desti] = (float)(Math.Sqrt(fftTempComplex[i].X * fftTempComplex[i].X + fftTempComplex[i].Y * fftTempComplex[i].Y) * weighting[freq]);
                 desti += stride;
             }
         }

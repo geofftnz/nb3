@@ -38,13 +38,15 @@ namespace nb3.Player.Analysis
 
         private const int MAXCHANNELS = 2;
         private const int BUFFERLEN = 8192;
-        private RingBuffer<float>[] ringbuffer = new RingBuffer<float>[MAXCHANNELS];
+        //private RingBuffer<float>[] ringbuffer = new RingBuffer<float>[MAXCHANNELS];
+
+        private BufferedFFT[] fft = new BufferedFFT[MAXCHANNELS];
 
         private ILoudnessWeighting loudnessWeighting;
 
         private SpectrumAnalyser analyser = new SpectrumAnalyser();
 
-        private FFT fft = new FFT(fftSize);
+        //private FFT fft = new FFT(fftSize);
 
         public event EventHandler<FftEventArgs> SpectrumReady;
         public WaveFormat WaveFormat => source.WaveFormat;
@@ -60,7 +62,7 @@ namespace nb3.Player.Analysis
             //this.loudnessWeighting = new A_Weighting(source.WaveFormat.SampleRate);
 
             for (int i = 0; i < MAXCHANNELS; i++)
-                ringbuffer[i] = new RingBuffer<float>(BUFFERLEN);
+                fft[i] = new BufferedFFT(BUFFERLEN, fftSize, loudnessWeighting);
         }
 
 
@@ -95,13 +97,13 @@ namespace nb3.Player.Analysis
             // mono source - copy to both channels
             if (channels == 1)
             {
-                ringbuffer[0].Add(samples[offset]);
-                ringbuffer[1].Add(samples[offset]);
+                fft[0].Add(samples[offset]);
+                fft[1].Add(samples[offset]);
             }
             else
             {
-                ringbuffer[0].Add(samples[offset]);
-                ringbuffer[1].Add(samples[offset + 1]);
+                fft[0].Add(samples[offset]);
+                fft[1].Add(samples[offset + 1]);
             }
 
             sampleCounter++;
@@ -111,16 +113,7 @@ namespace nb3.Player.Analysis
 
                 for (int i = 0; i < MAXCHANNELS; i++)
                 {
-                    fft.Generate(ringbuffer[i]);
-                    fft.CopyTo(f, i, outputResolution, MAXCHANNELS);
-
-                    int jj = i;
-                    for(int j = 0; j < outputResolution; j++)
-                    {
-                        float freq = (float)j / (float)(outputResolution - 1);
-                        f[jj] *= (float)loudnessWeighting[freq];
-                        jj += MAXCHANNELS;
-                    }
+                    fft[i].GenerateTo(f, i, outputResolution, MAXCHANNELS);
                 }
 
                 var analysisSample = new AudioAnalysisSample(f, new float[Globals.AUDIODATASIZE], frameInterval);
