@@ -106,6 +106,7 @@
     <Compile Include="Vis\GlobalTextures.cs" />
     <Compile Include="Vis\Renderers\AnalysisDebugRenderer.cs" />
     <Compile Include="Vis\Renderers\Components\DebugAudioData.cs" />
+    <Compile Include="Vis\Renderers\Components\DebugSpectrum2.cs" />
     <Compile Include="Vis\Renderers\Components\DebugSpectrumWaterfall.cs" />
     <Compile Include="Vis\Renderers\Components\DebugSpectrum.cs" />
     <Compile Include="Vis\VisHost.cs" />

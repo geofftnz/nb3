@@ -36,6 +36,12 @@ namespace nb3.Player.Analysis
             ringBuffer.Add(sample);
         }
 
+        public void Add(IEnumerable<float> samples)
+        {
+            foreach(var sample in samples)
+                ringBuffer.Add(sample);
+        }
+
         public void GenerateTo(float[] dest, int offset, int count, int stride = 1)
         {
             fft.Generate(ringBuffer);

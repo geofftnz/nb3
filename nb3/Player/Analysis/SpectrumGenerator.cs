@@ -35,6 +35,7 @@ namespace nb3.Player.Analysis
         private int frameInterval = 100;
         private int sampleCounter = 0;
         private const int outputResolution = Globals.SPECTRUMRES;
+        private const int outputResolution2 = Globals.SPECTRUMRES/2;
 
         private const int MAXCHANNELS = 2;
         private const int BUFFERLEN = 8192;
@@ -116,13 +117,33 @@ namespace nb3.Player.Analysis
                     fft[i].GenerateTo(f, i, outputResolution, MAXCHANNELS);
                 }
 
-                var analysisSample = new AudioAnalysisSample(f, new float[Globals.AUDIODATASIZE], frameInterval);
+                float[] f2 = new float[outputResolution2];
+                fft2.Add(MixChannels(f, outputResolution * MAXCHANNELS, MAXCHANNELS).Select(x => x / (float)MAXCHANNELS));
+                fft2.GenerateTo(f2, 0, outputResolution2);
+
+                var analysisSample = new AudioAnalysisSample(f, f2, new float[Globals.AUDIODATASIZE], frameInterval);
 
                 analyser.Process(analysisSample);
 
                 SpectrumReady?.Invoke(this, new FftEventArgs(analysisSample));
 
                 sampleCounter = 0;
+            }
+        }
+
+        private IEnumerable<float> MixChannels(float[] samples, int count, int MAXCHANNELS)
+        {
+            float total = 0f;
+            int c = MAXCHANNELS;
+            for (int i=0;i<count;i++)
+            {
+                total += samples[i];
+                if (--c == 0)
+                {
+                    yield return total;
+                    c = MAXCHANNELS;
+                    total = 0f;
+                }
             }
         }
 

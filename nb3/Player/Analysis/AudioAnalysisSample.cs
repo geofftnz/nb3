@@ -14,11 +14,13 @@ namespace nb3.Player.Analysis
     {
         public int Samples { get; set; } = 1;
         public float[] Spectrum { get; set; } = null;
+        public float[] Spectrum2 { get; set; } = null;
         public float[] AudioData { get; set; } = null;
 
-        public AudioAnalysisSample(float[] spectrum, float[] audioData, int samples)
+        public AudioAnalysisSample(float[] spectrum, float[] spectrum2, float[] audioData, int samples)
         {
             Spectrum = spectrum;
+            Spectrum2 = spectrum2;
             AudioData = audioData;
             Samples = samples;
         }

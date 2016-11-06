@@ -17,7 +17,7 @@ void main()
 
 #define PI 3.1415926535897932384626433832795
 #define PIOVER2 1.5707963267948966192313216916398
-#define LOGe10 2.30258509299;
+#define LOGe10 2.30258509299
 
 vec3 log10(vec3 s)
 {
@@ -129,6 +129,58 @@ void main(void)
 
 	out_Colour = col;	
 }
+
+//|waterfall2_frag
+#version 410
+precision highp float;
+layout (location = 0) in vec2 texcoord;
+layout (location = 0) out vec4 out_Colour;
+uniform sampler2D spectrumTex;
+uniform float currentPosition;
+uniform float currentPositionEst;
+
+#include "Common/gamma.glsl";
+#include ".|common";
+#include ".|spectrum_common";
+
+float scaleSpectrum2(float s)
+{
+	return 1.0 + (20.0 * (log(s) / LOGe10)) / 200.0;
+}
+
+vec4 renderSpectrum(vec2 t)
+{
+	//t.x = sqrt(t.x);
+
+	// spectrum
+	vec3 col = colscale(scaleSpectrum2(texture2D(spectrumTex,t).r));
+
+	// stereo separation
+	//float s = todB(getSample(spectrumTex,t)).a;
+	//vec3 col = mix(vec3(1.0,0.0,0.0), vec3(0.0,0.0,1.0), s*0.5+0.5);
+
+	float a = 1.0 - smoothstep(abs(currentPosition-t.y),0.0,0.5/1024.0);
+	col += vec3(1.0,0.0,0.0) * a * 0.5;
+
+	float b = 1.0 - smoothstep(abs(currentPositionEst-t.y),0.0,0.5/1024.0);
+	col += vec3(0.0,1.0,0.0) * b * 0.5;
+
+	return vec4(col,1.0);
+}
+
+
+void main(void)
+{
+	vec2 t = texcoord.yx;
+
+	vec4 col = renderSpectrum(t);
+	
+	// gamma
+	col.rgb = l2g(col.rgb);
+
+	out_Colour = col;	
+}
+
 
 //|spectrum_frag
 #version 410

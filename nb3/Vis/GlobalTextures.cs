@@ -32,8 +32,14 @@ namespace nb3.Vis
         /// </summary>
         public const int SPECTRUMRES = 1024;
 
+        /// <summary>
+        /// FFT of FFT, so half the size
+        /// </summary>
+        public const int SPECTRUM2RES = 512;
+
 
         public Texture SpectrumTex { get; private set; }
+        public Texture Spectrum2Tex { get; private set; }
         public Texture AudioDataTex { get; private set; }
 
         /// <summary>
@@ -107,6 +113,7 @@ namespace nb3.Vis
         public GlobalTextures()
         {
             SpectrumTex = new Texture("spectrum", SPECTRUMRES, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.Rg32f, PixelFormat.Rg, PixelType.Float);
+            Spectrum2Tex = new Texture("spectrum2", SPECTRUM2RES, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float);
             AudioDataTex = new Texture("audiodata", Globals.AUDIODATASIZE, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float);
 
             Loading += GlobalTextures_Loading;
@@ -121,6 +128,12 @@ namespace nb3.Vis
             SpectrumTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat));
             SpectrumTex.UploadEmpty();
 
+            Spectrum2Tex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear));
+            Spectrum2Tex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear));
+            Spectrum2Tex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge));
+            Spectrum2Tex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat));
+            Spectrum2Tex.UploadEmpty();
+
             AudioDataTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear));
             AudioDataTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear));
             AudioDataTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge));
@@ -130,6 +143,7 @@ namespace nb3.Vis
         private void GlobalTextures_Unloading(object sender, EventArgs e)
         {
             SpectrumTex.Unload();
+            Spectrum2Tex.Unload();
             AudioDataTex.Unload();
         }
 
@@ -144,6 +158,7 @@ namespace nb3.Vis
             SamplePosition %= SAMPLEHISTORY;
 
             SpectrumTex.RefreshImage(sample.Spectrum, 0, SamplePosition, SPECTRUMRES, 1);
+            Spectrum2Tex.RefreshImage(sample.Spectrum2, 0, SamplePosition, SPECTRUM2RES, 1);
             AudioDataTex.RefreshImage(sample.AudioData, 0, SamplePosition, Globals.AUDIODATASIZE, 1);
         }
 
