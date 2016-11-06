@@ -39,10 +39,10 @@ namespace nb3.Player.Analysis
         private const int MAXCHANNELS = 2;
         private const int BUFFERLEN = 8192;
         private RingBuffer<float>[] ringbuffer = new RingBuffer<float>[MAXCHANNELS];
+
         private ILoudnessWeighting loudnessWeighting;
 
         private SpectrumAnalyser analyser = new SpectrumAnalyser();
-
 
         private FFT fft = new FFT(fftSize);
 

@@ -1,4 +1,5 @@
 ﻿using NAudio.Dsp;
+using nb3.Player.Analysis.LoudnessWeighting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,7 +78,24 @@ namespace nb3.Player.Analysis
                 dest[desti] = (float)Math.Sqrt(fftTempComplex[i].X * fftTempComplex[i].X + fftTempComplex[i].Y * fftTempComplex[i].Y);
                 desti += stride;
             }
+        }
 
+        public void CopyTo(float[] dest, int offset, int count, int stride, ILoudnessWeighting weighting)
+        {
+            int max = count;
+            if (max > size / 2)
+                max = size / 2;
+
+            if (weighting.Size < max)
+                throw new ArgumentOutOfRangeException("Weighting not large enough");
+
+            int desti = offset;
+
+            for (int i = 0; i < max; i++)
+            {
+                dest[desti] = (float)(Math.Sqrt(fftTempComplex[i].X * fftTempComplex[i].X + fftTempComplex[i].Y * fftTempComplex[i].Y) * weighting[i]);
+                desti += stride;
+            }
         }
 
 
