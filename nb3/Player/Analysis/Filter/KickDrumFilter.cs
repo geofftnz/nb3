@@ -12,7 +12,7 @@ namespace nb3.Player.Analysis.Filter
         private const int NUMOUTPUTS = 4;
         public int OutputOffset { get; set; }
         public int OutputSlots { get { return NUMOUTPUTS; } }
-        private float[] outputs = new float[NUMOUTPUTS];
+        private float[] output = new float[NUMOUTPUTS];
 
         public float Threshold { get; set; } = 0.2f;
         public float Decay { get; set; } = 0.02f;
@@ -42,26 +42,26 @@ namespace nb3.Player.Analysis.Filter
             }
             current /= (float)freqCount;
             current = current.NormDB();
-            outputs[0] = current;
+            output[0] = current;
 
             avg = avg * lowpassCoeff + current * (1f - lowpassCoeff);
-            outputs[1] = avg;
+            output[1] = avg;
 
             avg = Math.Max(0.3f, avg);
 
-            outputs[2] = Math.Max(0f, (current - avg) * 4.0f);
+            output[2] = Math.Max(0f, (current - avg) * 4.0f);
 
             activation += Decay;
             activation = Math.Min(1f, activation);
 
-            if (outputs[2] > Threshold && activation > Release)
+            if (output[2] > Threshold && activation > Release)
             {
                 activation = 0f;
             }
 
-            outputs[3] = 1f - activation;
+            output[3] = 1f - activation;
 
-            return outputs;
+            return output;
         }
 
         public void Reset()
