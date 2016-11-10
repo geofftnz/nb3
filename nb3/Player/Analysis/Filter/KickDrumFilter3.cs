@@ -9,7 +9,11 @@ namespace nb3.Player.Analysis.Filter
 {
     public class KickDrumFilter3 : ISpectrumFilter
     {
-        private const int NUMOUTPUTS = 6;
+        private const int NUMOUTPUTS = 2;
+
+        private const int OUT_EDGE = 0;
+        private const int OUT_LEVEL = 1;
+
         public int OutputOffset { get; set; }
         public int OutputSlots { get { return NUMOUTPUTS; } }
         private float[] output = new float[NUMOUTPUTS];
@@ -27,9 +31,11 @@ namespace nb3.Player.Analysis.Filter
 
         private RingBuffer<float> buffer = new RingBuffer<float>(64);
 
+        private float avg_long = 0f;
         private float max = 0f;
         private bool state = false;
-        private float activation = 0f;
+        private float activation_rising_edge = 0f;
+        private float activation_high = 0f;
 
 
         public KickDrumFilter3(int freq_start = 0, int freq_count = 8)
@@ -49,44 +55,45 @@ namespace nb3.Player.Analysis.Filter
             }
             current /= (float)FreqCount;
             current = current.NormDB();
-            output[0] = current;
 
             buffer.Add(current);
 
             // step 2: maintain a long-term average
-            output[1] = AvgLowpass.Mix(current, output[1]);
-
+            avg_long = AvgLowpass.Mix(current, avg_long);
+            
             // step 3: get a recent moving average
             float lowpass = buffer.Last().Take(8).Average();
-            output[2] = lowpass;
 
             // step 4: peak tracker
             max = Math.Max(Threshold, Math.Max(max, lowpass));
-            output[3] = max;
 
             // step 5: state transition
             if (!state)
             {
-                if (lowpass > Trigger.Mix(output[1], max))
+                if (lowpass > Trigger.Mix(avg_long, max))
                 {
                     state = !state;
-                    activation = 1f;
+                    activation_rising_edge = 1f;
                 }
             }
             else
             {
                 // while we're high, bring the avg up faster
-                output[1] = AvgLowpassHigh.Mix(current, output[1]);
+                avg_long = AvgLowpassHigh.Mix(current, avg_long);
 
-                if (lowpass < output[1])
+                // on-state activation
+                activation_high = 1f;
+
+                if (lowpass < avg_long)
                 {
                     state = !state;
                 }
             }
 
-            output[4] = state ? 1f : 0f;
-            output[5] = activation;
-            activation = Math.Max(0f, activation - ActivationLinearDecay);
+            output[OUT_EDGE] = activation_rising_edge;
+            output[OUT_LEVEL] = activation_high;
+            activation_rising_edge = Math.Max(0f, activation_rising_edge - ActivationLinearDecay);
+            activation_high = Math.Max(0f, activation_high - ActivationLinearDecay);
             max *= Decay;
 
             return output;
