@@ -14,35 +14,33 @@ namespace nb3.Player.Analysis.Filter
         public int OutputSlots { get { return NUMOUTPUTS; } }
         private float[] output = new float[NUMOUTPUTS];
 
-        public float Threshold { get; set; } = 0.05f;
+        public int FreqStart { get; set; }
+        public int FreqCount { get; set; }
+        public float Threshold { get; set; } = 0.1f;
         public float Trigger { get; set; } = 0.8f;
-        public float Decay { get; set; } = 0.995f;
+        public float Decay { get; set; } = 0.999f;
         //public float Release { get; set; } = 0.2f;
 
         private RingBuffer<float> buffer = new RingBuffer<float>(64);
-        private int freqStart, freqCount;
-        private float lowpassCoeff;
 
         private float max = 0f;
         private float activation = 0f;
 
 
-        public KickDrumFilter2(int freq_start = 0, int freq_count = 8, float lowpass_coeff = 0.98f)
+        public KickDrumFilter2(int freq_start = 0, int freq_count = 8)
         {
-            this.freqStart = freq_start;
-            this.freqCount = freq_count;
-            this.lowpassCoeff = lowpass_coeff;
-
+            FreqStart = freq_start;
+            FreqCount = freq_count;
         }
 
         public float[] GetValues(FilterParameters frame)
         {
             float current = 0f;
-            for (int i = freqStart; i < freqStart + freqCount; i++)
+            for (int i = FreqStart; i < FreqStart + FreqCount; i++)
             {
                 current += frame.Spectrum[i];
             }
-            current /= (float)freqCount;
+            current /= (float)FreqCount;
             current = current.NormDB();
             output[0] = current;
 
@@ -56,7 +54,7 @@ namespace nb3.Player.Analysis.Filter
 
             if (diff > max * Trigger)
             {
-                max = diff;
+                max = Math.Max(diff,max);
                 activation = 1f;
             }
 
