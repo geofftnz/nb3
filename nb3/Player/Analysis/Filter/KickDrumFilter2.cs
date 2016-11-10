@@ -16,8 +16,8 @@ namespace nb3.Player.Analysis.Filter
 
         public int FreqStart { get; set; }
         public int FreqCount { get; set; }
-        public float Threshold { get; set; } = 0.1f;
-        public float Trigger { get; set; } = 0.8f;
+        public float Threshold { get; set; } = 0.2f;
+        public float Trigger { get; set; } = 0.95f;
         public float Decay { get; set; } = 0.999f;
         //public float Release { get; set; } = 0.2f;
 
@@ -46,11 +46,13 @@ namespace nb3.Player.Analysis.Filter
 
             buffer.Add(current);
 
-            float previous = buffer.Last().Skip(1).Take(8).Average();
+            //float previous = buffer.Last().Skip(4).Take(2).Average();
+            //float diff = current - previous;
+            //output[1] = diff + 0.5f;
 
-            float diff = current - previous;
-
-            output[1] = diff + 0.5f;
+            float lowpass = buffer.Last().Take(8).Average();
+            output[1] = lowpass;
+            float diff = lowpass;
 
             if (diff > max * Trigger)
             {
