@@ -108,6 +108,8 @@
     <Compile Include="Vis\FrameData.cs" />
     <Compile Include="Vis\GlobalTextures.cs" />
     <Compile Include="Vis\Renderers\AnalysisDebugRenderer.cs" />
+    <Compile Include="Vis\Renderers\BasicShaderRenderer.cs" />
+    <Compile Include="Vis\Renderers\Components\BasicShaderHost.cs" />
     <Compile Include="Vis\Renderers\Components\DebugAudioData.cs" />
     <Compile Include="Vis\Renderers\Components\DebugSpectrum2.cs" />
     <Compile Include="Vis\Renderers\Components\DebugSpectrumWaterfall.cs" />
@@ -145,7 +147,15 @@
     <Content Include="Res\Shaders\debugaudiodata.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="Res\Shaders\debugspectrum.glsl" />
+    <Content Include="Res\Shaders\Effects\pulse.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\Shaders\shaderhost.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\Shaders\debugspectrum.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

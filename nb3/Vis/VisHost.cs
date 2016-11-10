@@ -20,7 +20,7 @@ namespace nb3.Vis
 {
     public class VisHost : GameWindow
     {
-        private const string SHADERPATH = @"../../Res/Shaders;Res/Shaders";
+        private const string SHADERPATH = @"../../Res/Shaders;Res/Shaders;../../Res/Shaders/Common;Res/Shaders/Common;../../Res/Shaders/Effects;Res/Shaders/Effects";
 
         private GameComponentCollection components = new GameComponentCollection();
         private Font font;
@@ -121,7 +121,8 @@ namespace nb3.Vis
             components.Add(globalTextures);
             components.Add(frameCounter = new OpenTKExtensions.Components.FrameCounter(font));
             //components.Add(new Renderers.Components.DebugSpectrumWaterfall());
-            components.Add(new Renderers.AnalysisDebugRenderer());
+            //components.Add(new Renderers.AnalysisDebugRenderer());
+            components.Add(new Renderers.BasicShaderRenderer());
 
             font.Loaded += (s, e) => { text.Font = font; };
 
