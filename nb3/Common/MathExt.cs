@@ -21,5 +21,10 @@ namespace nb3.Common
         {
             return (float)((double)a).NormDB();
         }
+
+        public static float Mix(this float x, float a, float b) 
+        {
+            return a * (1f - x) + x * b;
+        }
     }
 }
