@@ -71,7 +71,7 @@ namespace nb3.LaunchUI
         private void CreatePlayer()
         {
             DestroyPlayer();
-            player = new Player.Player(()=> new DirectSoundOut(50));
+            player = new Player.Player(()=> new DirectSoundOut(100));
             //player.SpectrumReady += Player_SpectrumReady;
 
             if (visHost != null)
