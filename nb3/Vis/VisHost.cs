@@ -20,7 +20,7 @@ namespace nb3.Vis
 {
     public class VisHost : GameWindow
     {
-        private const string SHADERPATH = @"../../Res/Shaders;Res/Shaders;../../Res/Shaders/Common;Res/Shaders/Common;../../Res/Shaders/Effects;Res/Shaders/Effects";
+        private const string SHADERPATH = @"../../Res/Shaders;Res/Shaders";
 
         private GameComponentCollection components = new GameComponentCollection();
         private Font font;
