@@ -96,10 +96,10 @@ void main(void)
 {
 	vec3 col = vec3(pos.xy,0.2);
 
-	float r = dot(pos,pos);
+	float r = sqrt(dot(pos,pos));
 	float a = (atan(pos.y, pos.x) / PI) * 0.5 + 0.5;
 
-	vec3 bgcol = colscale(scaleSpectrum(getSample(spectrum2Tex,vec2(a,sqrt(r) * 0.1 - currentPositionEst))).b);
+	vec3 bgcol = colscale(4.0*scaleSpectrum(getSample(spectrum2Tex,vec2(a,currentPositionEst - (r) * 0.2 ))).b);
 
 
 
