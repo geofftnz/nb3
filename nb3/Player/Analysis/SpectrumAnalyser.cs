@@ -30,6 +30,7 @@ namespace nb3.Player.Analysis
             filterParams.SpectrumHistory = SpectrumHistory;
 
             // The order of these is important
+            AddFilter(new PeakFrequencyFilter(4, Globals.SPECTRUMRES/2));
             AddFilter(new KickDrumFilter3(0, 6));
             AddFilter(new KickDrumFilter2(0, 4));
             AddFilter(new KickDrumFilter2(0, 8));
