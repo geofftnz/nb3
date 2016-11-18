@@ -27,7 +27,8 @@ namespace nb3.Player.Analysis.Filter
 
         public int FreqStart { get; set; }
         public int FreqCount { get; set; }
-        public float FreqSensitivity { get; set; } = 0.001f;
+        public float FreqSensitivity { get; set; } = 0.002f;
+        public float HighFreqFallOff { get; set; } = 0.1f;
 
         private float[] LowPassSpectrum = new float[Globals.SPECTRUMRES];
         private float[] SmoothSpectrum = new float[Globals.SPECTRUMRES];
@@ -94,9 +95,12 @@ namespace nb3.Player.Analysis.Filter
 
             for (int i = 0; i < FreqCount; i++)
             {
+                float falloff = 1f - ((float)i * HighFreqFallOff) / (float)FreqCount;
+
+
                 distance = (float)Math.Abs(i - prev_index) * selectivity;
                 //current = Math.Max(0f, LowPassSpectrum[FreqStart + i] - SmoothSpectrum[FreqStart + i]) / (1f + distance);
-                current = Math.Max(0f, LowPassSpectrum[FreqStart + i] - SmoothSpectrum[FreqStart + i] * 0.5f) / (1f + distance);
+                current = Math.Max(0f, LowPassSpectrum[FreqStart + i] - SmoothSpectrum[FreqStart + i] * 0.5f) * falloff / (1f + distance);
                 total += current;
                 if (current > max)
                 {
