@@ -62,7 +62,7 @@ float ttexel = 1.0/1024.0;
 
 float getDataSample(float index, float offset)
 {
-	vec2 t = vec2(index * stexel, offset * ttexel + currentPositionEst);
+	vec2 t = vec2(index * stexel, currentPositionEst - offset * ttexel);
 	
 	float s = texture2D(audioDataTex,t).r;
 	return s;
@@ -81,6 +81,12 @@ vec4 getSample(sampler2D spectrum, vec2 t)
 	return s;
 }
 
+vec4 getOffsetSample(sampler2D spectrum, float freq, float offset)
+{
+	return getSample(spectrum, vec2(freq, currentPositionEst - offset * ttexel));
+}
+
+
 vec4 scaleSpectrum(vec4 s)
 {
 	return todB(s);
@@ -92,16 +98,17 @@ float fscale(float x)
 }
 
 
+
 void main(void)
 {
-	vec3 col = vec3(pos.xy,0.2);
+	vec3 col = vec3(0.0); //vec3(texcoord.xy,0.2);
+	//vec3 col = vec3(texcoord.xy,0.2);
 
+	/*
 	float r = sqrt(dot(pos,pos));
 	float a = (atan(pos.y, pos.x) / PI) * 0.5 + 0.5;
 
 	vec3 bgcol = colscale(4.0*scaleSpectrum(getSample(spectrum2Tex,vec2(a,currentPositionEst - (r) * 0.2 ))).b);
-
-
 
 	float time_since_pulse = 1.0 - getDataSample(0.0,0.0);
 
@@ -110,7 +117,48 @@ void main(void)
 
 
 	col.rgb = mix(bgcol,vec3(2.0,1.2,1.5) * pulse2,1.0-smoothstep(pulse,pulse + 0.02,r));
+	*/
 
+
+	// spectrum background
+	float specy = fscale(texcoord.y);
+	col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (1.0-texcoord.x) * 200.0)).b  - 0.1);
+	col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 50.0)).b  - 0.1);
+	col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 25.0)).b  - 0.1);
+	//col += vec3(0.0,0.0,0.3) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex,specy, (texcoord.x) * 50.0)).b  - 0.2);
+	//col += vec3(0.0,0.1,0.4) * smoothstep(0.05,0.4,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 20.0)).b);
+
+	specy = fscale(1.0-texcoord.y);
+	col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (1.0-texcoord.x) * 200.0)).b  - 0.1);
+	col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 50.0)).b  - 0.1);
+	col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 25.0)).b  - 0.1);
+	//col += vec3(0.0,0.0,0.25) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex,specy, (texcoord.x) * 50.0)).b  - 0.2);
+	//col += vec3(0.0,0.1,0.4) * smoothstep(0.05,0.4,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 20.0)).b);
+
+
+
+	for (float x = 0.0; x <= 1.01; x+= 0.05)
+	//for (float x = texcoord.x - 0.2; x <= texcoord.x + 0.2; x+= 0.1)
+	{
+		if (x < texcoord.x - 0.1 || x > texcoord.x + 0.1)
+			continue;
+
+		// draw a circle (x,y,r)
+		vec3 circle = vec3(x,0.1,0.02);
+		vec3 ccol = vec3(0.0,0.1,1.0);
+
+		float time = (1.0-x) * 100.0;
+
+		float freq = getDataSample(0.0,time);
+		circle.y = 0.1 + 0.8 * sqrt(freq);
+		circle.z = 0.0001 + 0.4 * max(0.0,getDataSample(3.0,time)-0.3) ;
+		ccol = colscale(3.0 * max(0.0,getDataSample(3.0,time) - 0.2));
+
+		// get distance from centre
+		float d = length(texcoord.xy-circle.xy) - circle.z;
+	
+		col += ccol * (1.0-smoothstep(-0.02,0.0,d));
+	}
 	
 	// gamma
 	col.rgb = l2g(col.rgb);

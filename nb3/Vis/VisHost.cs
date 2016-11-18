@@ -121,8 +121,8 @@ namespace nb3.Vis
             components.Add(globalTextures);
             components.Add(frameCounter = new OpenTKExtensions.Components.FrameCounter(font));
             //components.Add(new Renderers.Components.DebugSpectrumWaterfall());
-            components.Add(new Renderers.AnalysisDebugRenderer());
-            //components.Add(new Renderers.BasicShaderRenderer());
+            //components.Add(new Renderers.AnalysisDebugRenderer());
+            components.Add(new Renderers.BasicShaderRenderer());
 
             font.Loaded += (s, e) => { text.Font = font; };
 
