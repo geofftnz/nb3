@@ -107,9 +107,17 @@ void main(void)
 
 	float time_since_pulse = 1.0 - getDataSample(6.0,0.0);
 
-	col += vec3(0.0,0.0,1.0) * exp(-time_since_pulse * 4.0);
-	col += vec3(0.0,1.0,0.0) * exp(-time_since_pulse * 6.0);
-	col += vec3(1.0,0.0,0.0) * exp(-time_since_pulse * 8.0);
+	float pulse1 = exp(-time_since_pulse * 4.0);
+	float pulse2 = exp(-time_since_pulse * 6.0);
+	float pulse3 = exp(-time_since_pulse * 8.0);
+
+	pulse1 *= 1.0 - smoothstep(0.6,1.3,length(pos));
+	pulse2 *= 1.0 - smoothstep(0.5,1.3,length(pos));
+	pulse3 *= 1.0 - smoothstep(0.4,1.3,length(pos));
+
+	col += vec3(0.0,0.05,0.6) * pulse1;
+	col += vec3(0.0,0.4,0.7) * pulse2;
+	col += vec3(0.0,0.3,0.1) * pulse3;
 	
 
 	/*
@@ -160,8 +168,7 @@ void main(void)
 
 
 
-	for (float x = 0.0; x <= 1.01; x+= 0.05)
-	//for (float x = texcoord.x - 0.2; x <= texcoord.x + 0.2; x+= 0.1)
+	for (float x = 0.0; x <= 1.01; x+= 0.06)
 	{
 		if (x < texcoord.x - 0.1 || x > texcoord.x + 0.1)
 			continue;
@@ -183,6 +190,9 @@ void main(void)
 		float cinside = smoothstep(-circle.z,0.0,d);		
 		col += ccol * (1.0-smoothstep(0.0,0.01,d)) * cinside * cinside;
 	}
+
+	// vignette
+	col.rgb *= 1.0 - smoothstep(1.1,1.4,length(pos));
 	
 	// gamma
 	col.rgb = l2g(col.rgb);
