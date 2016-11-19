@@ -99,7 +99,9 @@ float fscale(float x)
 
 
 // sub-effects (split to common?)
-vec4 FreqTrackerBubbles(float interval)
+
+// bubbles that track the peak-detector
+vec4 FreqTrackerBubbles(vec2 texcoord, float interval)
 {
 	vec3 col = vec3(0.0);
 
@@ -122,18 +124,64 @@ vec4 FreqTrackerBubbles(float interval)
 		// get distance from centre
 		float d = length(texcoord.xy-circle.xy) - circle.z;
 	
-		float cinside = smoothstep(-circle.z,0.0,d);		
+		float cinside = 1.0;//smoothstep(-circle.z,0.0,d);		
 		col += ccol * (1.0-smoothstep(0.0,0.01,d)) * cinside * cinside;
 	}
 
 	return vec4(col,1.0);
 }
 
+// a large pulse of light from the background
+// pos should be zero-centred
 float PulseBackground(vec2 pos, float data_index, float exp_falloff, float ss1, float ss2)
 {
 	float time_since_pulse = 1.0 - getDataSample(data_index,0.0);
 
 	return exp(-time_since_pulse * exp_falloff) * (1.0 - smoothstep(ss1,ss2,length(pos)));
+}
+
+// quantize into grid
+vec4 GridQuantize(vec2 pos, vec2 size)
+{
+	vec2 pos2 = pos * size;
+	float ofs = mod(floor(pos2.y),2.0);
+	pos2.x += ofs*0.5;
+
+	return vec4(floor(pos2.x),floor(pos2.y), fract(pos2.x),fract(pos2.y));
+}
+
+vec4 GridQuantizeRegular(vec2 pos, vec2 size)
+{
+	vec2 pos2 = pos * size;
+	return vec4(floor(pos2.x),floor(pos2.y), fract(pos2.x),fract(pos2.y));
+}
+
+
+// a grid of spots
+vec4 SpotGrid(vec2 pos, vec2 size)
+{
+	vec4 col = vec4(0.05);
+
+	// determine spot coordinates
+	vec4 gpos = GridQuantize(pos,size);
+
+	gpos.xy /= size;
+
+	gpos.y *= 2.0;
+	if (gpos.y>1.0) gpos.y = 2.0 - gpos.y;
+
+	// sample spectrum
+	float spectrum = scaleSpectrum ( getOffsetSample ( spectrumTex, (1.0-gpos.y), (1.0-gpos.x) * 40.0)).b;
+	//col.rgb = colscale(spectrum);
+	col.rgb = vec3(0.0,0.0,0.4) * 0.5;
+	
+	float r = length(gpos.zw * 2.0 - 1.0);
+	float r2 = spectrum * 1.5;
+	float c = 1.0 - smoothstep(r2,r2 * 1.05,r);
+	
+	col.a = c;
+
+	return col;
 }
 
 
@@ -142,30 +190,19 @@ void main(void)
 	vec3 col = vec3(0.0); //vec3(texcoord.xy,0.2);
 	//vec3 col = vec3(texcoord.xy,0.2);
 
-	col += vec3(0.0,0.05,0.6) * PulseBackground(pos,6.0,4.0,0.6,1.3);
-	col += vec3(0.0,0.4,0.7) * PulseBackground(pos,6.0,6.0,0.5,1.3);
-	col += vec3(0.0,0.3,0.1) * PulseBackground(pos,6.0,8.0,0.4,1.3);
-	
-	/*
-	// spectrum background
-	float specy = fscale(texcoord.y);
+	vec3 pulse = vec3(0.0);
+	pulse += vec3(0.0,0.05,0.6) * PulseBackground(pos,6.0,4.0,0.6,1.3);
+	pulse += vec3(0.0,0.4,0.7) * PulseBackground(pos,6.0,6.0,0.5,1.3);
+	pulse += vec3(0.0,0.3,0.1) * PulseBackground(pos,6.0,8.0,0.4,1.3);
 
-	float ss = 1.0;
-	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 7.0)).b  - 0.1) * 4.0;
-	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 19.0)).b  - 0.1) * 4.0;
-	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (1.0-texcoord.x) * 71.0)).b  - 0.1) * 4.0;
-	col += vec3(0.0,0.1,0.4) * ss * 0.02;
+	col.rgb += pulse;	
 
-	ss = 1.0;
-	specy = fscale(1.0-texcoord.y);
-	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 7.0)).b  - 0.1) * 4.0;
-	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 19.0)).b  - 0.1) * 4.0;
-	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (1.0-texcoord.x) * 71.0)).b  - 0.1) * 4.0;
+	vec4 spotgrid = SpotGrid(texcoord,vec2(10.0,40.0));
+	//col.rgb = mix(col.rgb,spotgrid.rgb,spotgrid.a);
+	col.rgb += spotgrid.rgb * spotgrid.a;
 
-	col += vec3(0.0,0.1,0.4) * ss * 0.02;
-	*/
 
-	col += FreqTrackerBubbles(0.06).rgb;
+	col += FreqTrackerBubbles(texcoord,0.02).rgb;
 
 	// vignette
 	col.rgb *= 1.0 - smoothstep(1.1,1.4,length(pos));
