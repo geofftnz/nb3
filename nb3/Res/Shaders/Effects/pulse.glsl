@@ -104,6 +104,14 @@ void main(void)
 	vec3 col = vec3(0.0); //vec3(texcoord.xy,0.2);
 	//vec3 col = vec3(texcoord.xy,0.2);
 
+
+	float time_since_pulse = 1.0 - getDataSample(6.0,0.0);
+
+	col += vec3(0.0,0.0,1.0) * exp(-time_since_pulse * 4.0);
+	col += vec3(0.0,1.0,0.0) * exp(-time_since_pulse * 6.0);
+	col += vec3(1.0,0.0,0.0) * exp(-time_since_pulse * 8.0);
+	
+
 	/*
 	float r = sqrt(dot(pos,pos));
 	float a = (atan(pos.y, pos.x) / PI) * 0.5 + 0.5;
@@ -122,16 +130,31 @@ void main(void)
 
 	// spectrum background
 	float specy = fscale(texcoord.y);
-	col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (1.0-texcoord.x) * 200.0)).b  - 0.1);
-	col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 50.0)).b  - 0.1);
-	col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 25.0)).b  - 0.1);
+
+	float ss = 1.0;
+	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 7.0)).b  - 0.1) * 4.0;
+	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 19.0)).b  - 0.1) * 4.0;
+	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (1.0-texcoord.x) * 71.0)).b  - 0.1) * 4.0;
+	col += vec3(0.0,0.1,0.4) * ss * 0.02;
+
+	ss = 1.0;
+	specy = fscale(1.0-texcoord.y);
+	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 7.0)).b  - 0.1) * 4.0;
+	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 19.0)).b  - 0.1) * 4.0;
+	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (1.0-texcoord.x) * 71.0)).b  - 0.1) * 4.0;
+
+	col += vec3(0.0,0.1,0.4) * ss * 0.02;
+
+	//col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (1.0-texcoord.x) * 200.0)).b  - 0.1);
+	//col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 50.0)).b  - 0.1);
+	//col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 25.0)).b  - 0.1);
 	//col += vec3(0.0,0.0,0.3) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex,specy, (texcoord.x) * 50.0)).b  - 0.2);
 	//col += vec3(0.0,0.1,0.4) * smoothstep(0.05,0.4,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 20.0)).b);
 
-	specy = fscale(1.0-texcoord.y);
-	col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (1.0-texcoord.x) * 200.0)).b  - 0.1);
-	col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 50.0)).b  - 0.1);
-	col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 25.0)).b  - 0.1);
+	//specy = fscale(1.0-texcoord.y);
+	//col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (1.0-texcoord.x) * 200.0)).b  - 0.1);
+	//col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 50.0)).b  - 0.1);
+	//col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 25.0)).b  - 0.1);
 	//col += vec3(0.0,0.0,0.25) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex,specy, (texcoord.x) * 50.0)).b  - 0.2);
 	//col += vec3(0.0,0.1,0.4) * smoothstep(0.05,0.4,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 20.0)).b);
 
@@ -151,13 +174,14 @@ void main(void)
 
 		float freq = getDataSample(0.0,time);
 		circle.y = 0.1 + 0.8 * sqrt(freq);
-		circle.z = 0.0001 + 0.4 * max(0.0,getDataSample(3.0,time)-0.3) ;
+		circle.z = 0.0001 + 0.3 * max(0.0,getDataSample(3.0,time)-0.3) ;
 		ccol = colscale(3.0 * max(0.0,getDataSample(3.0,time) - 0.2));
 
 		// get distance from centre
 		float d = length(texcoord.xy-circle.xy) - circle.z;
 	
-		col += ccol * (1.0-smoothstep(-0.02,0.0,d));
+		float cinside = smoothstep(-circle.z,0.0,d);		
+		col += ccol * (1.0-smoothstep(0.0,0.01,d)) * cinside * cinside;
 	}
 	
 	// gamma
