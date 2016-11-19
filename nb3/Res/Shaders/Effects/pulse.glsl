@@ -98,77 +98,12 @@ float fscale(float x)
 }
 
 
-
-void main(void)
+// sub-effects (split to common?)
+vec4 FreqTrackerBubbles(float interval)
 {
-	vec3 col = vec3(0.0); //vec3(texcoord.xy,0.2);
-	//vec3 col = vec3(texcoord.xy,0.2);
+	vec3 col = vec3(0.0);
 
-
-	float time_since_pulse = 1.0 - getDataSample(6.0,0.0);
-
-	float pulse1 = exp(-time_since_pulse * 4.0);
-	float pulse2 = exp(-time_since_pulse * 6.0);
-	float pulse3 = exp(-time_since_pulse * 8.0);
-
-	pulse1 *= 1.0 - smoothstep(0.6,1.3,length(pos));
-	pulse2 *= 1.0 - smoothstep(0.5,1.3,length(pos));
-	pulse3 *= 1.0 - smoothstep(0.4,1.3,length(pos));
-
-	col += vec3(0.0,0.05,0.6) * pulse1;
-	col += vec3(0.0,0.4,0.7) * pulse2;
-	col += vec3(0.0,0.3,0.1) * pulse3;
-	
-
-	/*
-	float r = sqrt(dot(pos,pos));
-	float a = (atan(pos.y, pos.x) / PI) * 0.5 + 0.5;
-
-	vec3 bgcol = colscale(4.0*scaleSpectrum(getSample(spectrum2Tex,vec2(a,currentPositionEst - (r) * 0.2 ))).b);
-
-	float time_since_pulse = 1.0 - getDataSample(0.0,0.0);
-
-	float pulse = (1.0 / exp(time_since_pulse * 8.0)) * 0.2;
-	float pulse2 = 1.0 / exp(time_since_pulse * 2.0);
-
-
-	col.rgb = mix(bgcol,vec3(2.0,1.2,1.5) * pulse2,1.0-smoothstep(pulse,pulse + 0.02,r));
-	*/
-
-
-	// spectrum background
-	float specy = fscale(texcoord.y);
-
-	float ss = 1.0;
-	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 7.0)).b  - 0.1) * 4.0;
-	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 19.0)).b  - 0.1) * 4.0;
-	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (1.0-texcoord.x) * 71.0)).b  - 0.1) * 4.0;
-	col += vec3(0.0,0.1,0.4) * ss * 0.02;
-
-	ss = 1.0;
-	specy = fscale(1.0-texcoord.y);
-	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 7.0)).b  - 0.1) * 4.0;
-	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 19.0)).b  - 0.1) * 4.0;
-	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (1.0-texcoord.x) * 71.0)).b  - 0.1) * 4.0;
-
-	col += vec3(0.0,0.1,0.4) * ss * 0.02;
-
-	//col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (1.0-texcoord.x) * 200.0)).b  - 0.1);
-	//col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 50.0)).b  - 0.1);
-	//col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 25.0)).b  - 0.1);
-	//col += vec3(0.0,0.0,0.3) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex,specy, (texcoord.x) * 50.0)).b  - 0.2);
-	//col += vec3(0.0,0.1,0.4) * smoothstep(0.05,0.4,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 20.0)).b);
-
-	//specy = fscale(1.0-texcoord.y);
-	//col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (1.0-texcoord.x) * 200.0)).b  - 0.1);
-	//col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 50.0)).b  - 0.1);
-	//col += vec3(0.0,0.1,0.4) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 25.0)).b  - 0.1);
-	//col += vec3(0.0,0.0,0.25) * max(0.0,scaleSpectrum ( getOffsetSample ( spectrum2Tex,specy, (texcoord.x) * 50.0)).b  - 0.2);
-	//col += vec3(0.0,0.1,0.4) * smoothstep(0.05,0.4,scaleSpectrum ( getOffsetSample ( spectrum2Tex, specy, (texcoord.x) * 20.0)).b);
-
-
-
-	for (float x = 0.0; x <= 1.01; x+= 0.06)
+	for (float x = 0.0; x <= 1.01; x+= interval)
 	{
 		if (x < texcoord.x - 0.1 || x > texcoord.x + 0.1)
 			continue;
@@ -190,6 +125,47 @@ void main(void)
 		float cinside = smoothstep(-circle.z,0.0,d);		
 		col += ccol * (1.0-smoothstep(0.0,0.01,d)) * cinside * cinside;
 	}
+
+	return vec4(col,1.0);
+}
+
+float PulseBackground(vec2 pos, float data_index, float exp_falloff, float ss1, float ss2)
+{
+	float time_since_pulse = 1.0 - getDataSample(data_index,0.0);
+
+	return exp(-time_since_pulse * exp_falloff) * (1.0 - smoothstep(ss1,ss2,length(pos)));
+}
+
+
+void main(void)
+{
+	vec3 col = vec3(0.0); //vec3(texcoord.xy,0.2);
+	//vec3 col = vec3(texcoord.xy,0.2);
+
+	col += vec3(0.0,0.05,0.6) * PulseBackground(pos,6.0,4.0,0.6,1.3);
+	col += vec3(0.0,0.4,0.7) * PulseBackground(pos,6.0,6.0,0.5,1.3);
+	col += vec3(0.0,0.3,0.1) * PulseBackground(pos,6.0,8.0,0.4,1.3);
+	
+	/*
+	// spectrum background
+	float specy = fscale(texcoord.y);
+
+	float ss = 1.0;
+	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 7.0)).b  - 0.1) * 4.0;
+	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 19.0)).b  - 0.1) * 4.0;
+	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (1.0-texcoord.x) * 71.0)).b  - 0.1) * 4.0;
+	col += vec3(0.0,0.1,0.4) * ss * 0.02;
+
+	ss = 1.0;
+	specy = fscale(1.0-texcoord.y);
+	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 7.0)).b  - 0.1) * 4.0;
+	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (texcoord.x) * 19.0)).b  - 0.1) * 4.0;
+	ss *= max(0.0,scaleSpectrum ( getOffsetSample ( spectrumTex, specy, (1.0-texcoord.x) * 71.0)).b  - 0.1) * 4.0;
+
+	col += vec3(0.0,0.1,0.4) * ss * 0.02;
+	*/
+
+	col += FreqTrackerBubbles(0.06).rgb;
 
 	// vignette
 	col.rgb *= 1.0 - smoothstep(1.1,1.4,length(pos));
