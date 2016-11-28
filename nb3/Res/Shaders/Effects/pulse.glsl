@@ -144,6 +144,10 @@ float PulseBackground(vec2 pos, float data_index, float exp_falloff, float ss1, 
 vec4 GridQuantize(vec2 pos, vec2 size)
 {
 	vec2 pos2 = pos * size;
+
+	pos2.x += sin(pos.y * 32.0) * 0.1;
+	pos2.y += sin(pos.x * 32.0) * 0.1;
+
 	float ofs = mod(floor(pos2.y),2.0);
 	pos2.x += ofs*0.5;
 
@@ -194,15 +198,16 @@ void main(void)
 	pulse += vec3(0.0,0.05,0.6) * PulseBackground(pos,6.0,4.0,0.6,1.3);
 	pulse += vec3(0.0,0.4,0.7) * PulseBackground(pos,6.0,6.0,0.5,1.3);
 	pulse += vec3(0.0,0.3,0.1) * PulseBackground(pos,6.0,8.0,0.4,1.3);
+	pulse += vec3(1.0,1.0,1.0) * PulseBackground(pos,6.0,10.0,0.3,1.0);
 
 	col.rgb += pulse;	
 
-	vec4 spotgrid = SpotGrid(texcoord,vec2(10.0,40.0));
+	vec4 spotgrid = SpotGrid(texcoord,vec2(60.0,40.0));
 	//col.rgb = mix(col.rgb,spotgrid.rgb,spotgrid.a);
 	col.rgb += spotgrid.rgb * spotgrid.a;
 
 
-	col += FreqTrackerBubbles(texcoord,0.02).rgb;
+	col += FreqTrackerBubbles(texcoord,0.08).rgb;
 
 	// vignette
 	col.rgb *= 1.0 - smoothstep(1.1,1.4,length(pos));
