@@ -196,7 +196,54 @@ uniform float currentPositionEst;
 #include ".|spectrum_common";
 
 
-vec4 renderGraph(vec2 t)
+float plotPoint(float xpos, float xsample, float width)
+{
+	return 1.0 - smoothstep(0.0,width,abs(xpos - xsample));
+}
+
+vec4 renderGraph_multi(vec2 t)
+{
+	vec3 col = vec3(0.0);
+	float ty = fscale(t.y);
+	float tx;
+
+	//t.y = floor(t.y * 512.0) / 512.0;
+	ty = floor(ty * 1024.0) / 1024.0;
+
+	for (float i = 0.0;i<1.0;i+=0.05)
+	{
+		tx = texel.x * i * 10.0;
+		float s = scaleSpectrum(getSample(spectrumTex,vec2(ty,currentPositionEst - tx))).b; 
+
+		col += colscale(s) * plotPoint(t.x,s,0.02) * 0.3;
+	}
+
+	return vec4(col,1.0);
+}
+
+
+vec4 renderGraph_minmax(vec2 t)
+{
+	vec3 col = vec3(0.0,0.0,0.0);
+	float ty = fscale(t.y);
+
+	float samplemax = 0.0, samplemin = 1000.0;
+	for (float i = 0.0;i<1.0;i+=0.05)
+	{
+		float s = scaleSpectrum(getSample(spectrumTex,vec2(ty,currentPositionEst - texel.x * i * 50.0))).b; 
+		samplemax = max(samplemax,s);
+		samplemin = min(samplemin,s);
+	}
+
+	float sample0 = scaleSpectrum(getSample(spectrumTex,vec2(ty,currentPositionEst))).b;
+
+	col += vec3(1.0) * plotPoint(t.x,samplemax,0.02) * 0.05;
+	col += vec3(1.0) * plotPoint(t.x,samplemin,0.02) * 0.05;
+	col += colscale(sample0) * plotPoint(t.x,sample0,0.08) * 2.0;
+	return vec4(col,1.0);
+}
+
+vec4 renderGraph_original(vec2 t)
 {
 	vec3 col = vec3(0.0,0.0,0.0);
 	float ty = fscale(t.y);
@@ -221,7 +268,8 @@ void main(void)
 {
 	vec2 t = texcoord.yx;
 
-	vec4 col = renderGraph(t);
+	vec4 col = renderGraph_multi(t);
+	//vec4 col = renderGraph_minmax(t);
 	
 	// gamma
 	col.rgb = l2g(col.rgb);
