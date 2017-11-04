@@ -20,5 +20,10 @@ namespace nb3.Playlist
         {
             return FileName.Equals(obj);
         }
+
+        public override int GetHashCode()
+        {
+            return FileName.GetHashCode();
+        }
     }
 }

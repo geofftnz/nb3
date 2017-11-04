@@ -1,6 +1,6 @@
 ﻿using OpenTKExtensions.Framework;
 using OpenTKExtensions;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK;
 using System;
 using System.Collections.Generic;

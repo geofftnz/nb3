@@ -1,4 +1,5 @@
-﻿using OpenTKExtensions.Framework;
+﻿using OpenTKExtensions;
+using OpenTKExtensions.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;

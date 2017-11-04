@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using OpenTKExtensions.Framework;
 using nb3.Player;
 using System.Diagnostics;
 using nb3.Player.Analysis;
 using nb3.Common;
+using OpenTKExtensions.Resources;
 
 namespace nb3.Vis
 {
@@ -64,7 +65,7 @@ namespace nb3.Vis
         public long TotalSamples { get; private set; } = 0;
 
         private Stopwatch timer = Stopwatch.StartNew();
-        public int SampleRate { get; set; } = 44100; 
+        public int SampleRate { get; set; } = 44100;
         private int samplesPerFrame = 100;
         private long estimatedSamples = 0;
         private long sampleCorrection = 0;
@@ -107,44 +108,34 @@ namespace nb3.Vis
             }
         }
 
-
-
-
         public GlobalTextures()
         {
-            SpectrumTex = new Texture("spectrum", SPECTRUMRES, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.Rg32f, PixelFormat.Rg, PixelType.Float);
-            Spectrum2Tex = new Texture("spectrum2", SPECTRUM2RES, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float);
-            AudioDataTex = new Texture("audiodata", Globals.AUDIODATASIZE, SAMPLEHISTORY, TextureTarget.Texture2D, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float);
+            Resources.Add(SpectrumTex =
+                Texture.RG32f("spectrum", SPECTRUMRES, SAMPLEHISTORY,
+                    TextureParameterName.TextureMagFilter.SetTo(TextureMagFilter.Linear),
+                    TextureParameterName.TextureMinFilter.SetTo(TextureMinFilter.Linear),
+                    TextureParameterName.TextureWrapS.SetTo(TextureWrapMode.ClampToEdge),
+                    TextureParameterName.TextureWrapT.SetTo(TextureWrapMode.Repeat)
+                ));
+            Resources.Add(Spectrum2Tex =
+                Texture.R32f("spectrum2", SPECTRUM2RES, SAMPLEHISTORY,
+                    TextureParameterName.TextureMagFilter.SetTo(TextureMagFilter.Linear),
+                    TextureParameterName.TextureMinFilter.SetTo(TextureMinFilter.Linear),
+                    TextureParameterName.TextureWrapS.SetTo(TextureWrapMode.ClampToEdge),
+                    TextureParameterName.TextureWrapT.SetTo(TextureWrapMode.Repeat)
+                ));
+            Resources.Add(AudioDataTex =
+                Texture.R32f("audiodata", Globals.AUDIODATASIZE, SAMPLEHISTORY,
+                    TextureParameterName.TextureMagFilter.SetTo(TextureMagFilter.Linear),
+                    TextureParameterName.TextureMinFilter.SetTo(TextureMinFilter.Linear),
+                    TextureParameterName.TextureWrapS.SetTo(TextureWrapMode.ClampToEdge),
+                    TextureParameterName.TextureWrapT.SetTo(TextureWrapMode.Repeat)
+                ));
 
-            Loading += GlobalTextures_Loading;
-            Unloading += GlobalTextures_Unloading;
-        }
+            SpectrumTex.LoadEmpty = true;
+            Spectrum2Tex.LoadEmpty = true;
+            AudioDataTex.LoadEmpty = true;
 
-        private void GlobalTextures_Loading(object sender, EventArgs e)
-        {
-            SpectrumTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear));
-            SpectrumTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear));
-            SpectrumTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge));
-            SpectrumTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat));
-            SpectrumTex.UploadEmpty();
-
-            Spectrum2Tex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear));
-            Spectrum2Tex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear));
-            Spectrum2Tex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge));
-            Spectrum2Tex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat));
-            Spectrum2Tex.UploadEmpty();
-
-            AudioDataTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear));
-            AudioDataTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear));
-            AudioDataTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge));
-            AudioDataTex.SetParameter(new TextureParameterInt(TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat));
-            AudioDataTex.UploadEmpty();
-        }
-        private void GlobalTextures_Unloading(object sender, EventArgs e)
-        {
-            SpectrumTex.Unload();
-            Spectrum2Tex.Unload();
-            AudioDataTex.Unload();
         }
 
         public void PushSample(AudioAnalysisSample sample)

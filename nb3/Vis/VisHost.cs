@@ -15,6 +15,7 @@ using System.Collections.Concurrent;
 using OpenTKExtensions.Input;
 using OpenTK.Input;
 using nb3.Player.Analysis;
+using OpenTKExtensions.Resources;
 
 namespace nb3.Vis
 {
@@ -95,19 +96,21 @@ namespace nb3.Vis
                     OpenTK.Graphics.GraphicsContextFlags.ForwardCompatible
                  )
         {
-            this.VSync = VSyncMode.Off;
+            VSync = VSyncMode.Off;
 
-            this.UpdateFrame += VisHost_UpdateFrame;
-            this.RenderFrame += VisHost_RenderFrame;
-            this.Load += VisHost_Load;
-            this.Unload += VisHost_Unload;
-            this.Resize += VisHost_Resize;
-            this.Closed += VisHost_Closed;
-            this.Closing += VisHost_Closing;
+            UpdateFrame += VisHost_UpdateFrame;
+            RenderFrame += VisHost_RenderFrame;
+            Load += VisHost_Load;
+            Unload += VisHost_Unload;
+            Resize += VisHost_Resize;
+            Closed += VisHost_Closed;
+            Closing += VisHost_Closing;
 
-            this.Keyboard.KeyDown += Keyboard_KeyDown;
-            this.Keyboard.KeyUp += Keyboard_KeyUp;
+            Keyboard.KeyDown += Keyboard_KeyDown;
+            Keyboard.KeyUp += Keyboard_KeyUp;
 
+            // set default shader loader
+            ShaderProgram.DefaultLoader = new OpenTKExtensions.Loaders.MultiPathFileSystemLoader(SHADERPATH);
 
 
             // framedata setup
@@ -126,19 +129,17 @@ namespace nb3.Vis
 
             font.Loaded += (s, e) => { text.Font = font; };
 
-            // set default shader loader
-            ShaderProgram.DefaultLoader = new OpenTKExtensions.Loaders.MultiPathFileSystemLoader(SHADERPATH);
         }
 
         private void Keyboard_KeyUp(object sender, KeyboardKeyEventArgs e)
         {
-            this.components.ProcessKeyUp(e);
+            components.ProcessKeyUp(e);
         }
 
         private void Keyboard_KeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
         {
             //this.keyboardActions.ProcessKeyDown(e.Key, e.Modifiers);
-            this.components.ProcessKeyDown(e);
+            components.ProcessKeyDown(e);
         }
 
         private void VisHost_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -245,7 +246,7 @@ namespace nb3.Vis
 
         private void SetProjection()
         {
-            GL.Viewport(this.ClientRectangle);
+            GL.Viewport(ClientRectangle);
             SetOverlayProjection();
 
             //SetGBufferCombineProjection();
@@ -253,13 +254,13 @@ namespace nb3.Vis
 
         private void SetOverlayProjection()
         {
-            float aspect = ClientRectangle.Height > 0 ? ((float)this.ClientRectangle.Width / (float)this.ClientRectangle.Height) : 1f;
+            float aspect = ClientRectangle.Height > 0 ? ((float)ClientRectangle.Width / (float)ClientRectangle.Height) : 1f;
 
             overlayProjection = Matrix4.CreateOrthographicOffCenter(0.0f, aspect, 1.0f, 0.0f, 0.001f, 10.0f);
             overlayModelview = Matrix4.Identity * Matrix4.CreateTranslation(0.0f, 0.0f, -1.0f);
 
-            this.text.Projection = this.overlayProjection;
-            this.text.Modelview = this.overlayModelview;
+            text.Projection = overlayProjection;
+            text.Modelview = overlayModelview;
         }
 
         public void AddSample(AudioAnalysisSample sample)
