@@ -36,6 +36,8 @@ namespace nb3.Player.Analysis
             for (int i = 0; i < size; i++)
             {
                 fftWindowShape[i] = (float)FastFourierTransform.HammingWindow(i, size);
+                //fftWindowShape[i] = (float)FastFourierTransform.BlackmannHarrisWindow(i, size);
+                //fftWindowShape[i] = (float)FastFourierTransform.HannWindow(i, size);
             }
         }
 

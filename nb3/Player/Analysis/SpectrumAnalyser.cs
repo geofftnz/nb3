@@ -29,7 +29,7 @@ namespace nb3.Player.Analysis
             filterParams.SpectrumHistory = SpectrumHistory;
 
             // The order of these is important
-            AddFilter(new PeakFrequencyFilter(0, Globals.SPECTRUMRES/3));
+            AddFilter(new PeakFrequencyFilter(0, Globals.SPECTRUMRES/3));  // TODO: magic const 3 replicated in shader code
             AddFilter(new KickDrumFilter3(0, 6));
             AddFilter(new KickDrumFilter2(0, 4));
             AddFilter(new KickDrumFilter2(0, 8));

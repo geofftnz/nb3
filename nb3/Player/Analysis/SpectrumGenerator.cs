@@ -119,10 +119,12 @@ namespace nb3.Player.Analysis
                     fft[i].GenerateTo(f, i, outputResolution, MAXCHANNELS);
                 }
 
+                
                 float[] f2 = new float[outputResolution2];
                 var mixtemp = MixChannels(f, outputResolution * MAXCHANNELS, MAXCHANNELS).Select(x => x / (float)MAXCHANNELS).ToArray();
                 fft2.Add(Resample(mixtemp, outputResolution2, x => x*x));
                 fft2.GenerateTo(f2, 0, outputResolution2);
+                
 
                 var analysisSample = new AudioAnalysisSample(f, f2, new float[Globals.AUDIODATASIZE], frameInterval);
 

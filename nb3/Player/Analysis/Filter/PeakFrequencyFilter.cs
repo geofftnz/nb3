@@ -113,7 +113,7 @@ namespace nb3.Player.Analysis.Filter
             index_lowpass = index_lowpass * 0.3f + 0.7f * ((float)index / (float)FreqCount);
             max_lowpass = max_lowpass * 0.9f + 0.1f * max;
 
-            output[(int)FilterOutputs.Frequency] = (float)Math.Sqrt(index_lowpass);
+            output[(int)FilterOutputs.Frequency] = index_lowpass; // (float)Math.Sqrt(index_lowpass);
             output[(int)FilterOutputs.AbsLevel] = max;
             output[(int)FilterOutputs.RelLevel] = (max - total) * 2f;
             output[(int)FilterOutputs.MaxLowpass] = max_lowpass;

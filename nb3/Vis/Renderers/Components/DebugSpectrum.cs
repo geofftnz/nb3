@@ -33,6 +33,7 @@ namespace nb3.Vis.Renderers.Components
                 if (frameData != null)
                 {
                     frameData.GlobalTextures.SpectrumTex.Bind(TextureUnit.Texture0);
+                    frameData.GlobalTextures.AudioDataTex.Bind(TextureUnit.Texture1);
                 }
             };
 
@@ -42,6 +43,7 @@ namespace nb3.Vis.Renderers.Components
                 {
                     sp
                     .SetUniform("spectrumTex", 0)
+                    .SetUniform("audioDataTex", 1)
                     .SetUniform("projectionMatrix", ProjectionMatrix)
                     .SetUniform("modelMatrix", ModelMatrix)
                     .SetUniform("viewMatrix", ViewMatrix)

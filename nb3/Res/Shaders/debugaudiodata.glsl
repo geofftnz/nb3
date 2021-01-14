@@ -1,4 +1,5 @@
-﻿//|vert
+﻿// line graphs below spectrum.
+//|vert
 #version 410
 precision highp float;
 layout (location = 0) in vec3 vertex;
@@ -51,11 +52,17 @@ void main(void)
 	float s = getSample(audioDataTex,vec2(index,t.y));
 
 	//s *= 10.0;
+	
 
 	float a = 1.0 - smoothstep(0.0,0.05,abs(s - offset));
-	
+
 	vec3 col = colscale(s) * a * 2.0;
-	
+
+	float fade = smoothstep(mod(t.y-currentPositionEst+1.0,1.0)*128.0,0.0,1.0);
+	float fade2 = 1.0 - smoothstep(mod(currentPositionEst-t.y+1.0,1.0)*256.0,0.0,1.0);
+	col *= fade;
+	col *= (1.0+fade2*2.0);
+
 	// gamma
 	col.rgb = l2g(col.rgb);
 

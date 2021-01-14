@@ -28,7 +28,7 @@ namespace nb3.Vis
         private TextManager text;
         private KeyboardActionManager keyboardActions;
 
-        private TextBlock title = new TextBlock("t0", "NeuralBeat3 ©2016 Geoff Thornburrow", new Vector3(0.0f, 0.05f, 0f), 0.0005f, new Vector4(1f, 0.8f, 0.2f, 1f));
+        private TextBlock title = new TextBlock("t0", "NeuralBeat3 ©2016-2020 Geoff Thornburrow", new Vector3(0.0f, 0.05f, 0f), 0.0005f, new Vector4(1f, 0.8f, 0.2f, 1f));
         private Matrix4 overlayProjection;
         private Matrix4 overlayModelview;
 

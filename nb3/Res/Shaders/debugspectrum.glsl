@@ -64,8 +64,9 @@ vec3 colscale_bw(float s)
 	return vec3(s*s*s*s*4.0);
 }
 
-
 //|spectrum_common
+#define DATARES 256
+
 vec2 texel = vec2(1.0/1024.0,0.0);
 
 vec4 getSample(sampler2D spectrum, vec2 t)
@@ -84,17 +85,34 @@ vec4 getSample_sharpen(sampler2D spectrum, vec2 t)
 {
 	vec2 raw = vec2(0.0);
 
-	/*
-	raw += texture2D(spectrum,t + texel*4.0).rg * -0.0625;
-	raw += texture2D(spectrum,t + texel*3.0).rg * -0.125;
-	raw += texture2D(spectrum,t + texel*2.0).rg * -0.25;
-	raw += texture2D(spectrum,t + texel).rg * -0.5;
-	raw += texture2D(spectrum,t).rg * 2.0;
-	raw += texture2D(spectrum,t - texel).rg * -0.5;
-	raw += texture2D(spectrum,t - texel*2.0).rg * -0.25;
-	raw += texture2D(spectrum,t - texel*3.0).rg * -0.125;
-	raw += texture2D(spectrum,t - texel*4.0).rg * -0.0625;
-	*/
+	raw = texture2D(spectrum,t).rg * 2.0;
+
+	vec2 background = vec2(0.0);
+	float ofs = 1.0;
+	for(int i=0;i<16;i++){
+
+		background += texture2D(spectrum,t - texel * ofs).rg / (ofs*0.2 + 1.0);
+		background += texture2D(spectrum,t + texel * ofs).rg / (ofs*0.2 + 1.0);
+
+		ofs += 1.0;
+	}
+
+	raw -= background * 0.2;
+
+
+	raw = max(vec2(0.0),raw);
+
+	// TODO: potentially don't need this
+	float sep = asin((raw.g - raw.r) / (raw.g + raw.r)) / PIOVER2;
+
+	vec4 s = vec4(raw.rg,(raw.r+raw.g)*0.5, sep);
+
+	return s;
+}
+
+vec4 getSample_sharpen_in_time(sampler2D spectrum, vec2 t)
+{
+	vec2 raw = vec2(0.0);
 
 	raw = texture2D(spectrum,t).rg * 2.0;
 
@@ -102,14 +120,17 @@ vec4 getSample_sharpen(sampler2D spectrum, vec2 t)
 	float ofs = 1.0;
 	for(int i=0;i<8;i++){
 
-		background += texture2D(spectrum,t - texel * ofs).rg / (ofs*0.7 + 1.0);
-		background += texture2D(spectrum,t + texel * ofs).rg / (ofs*0.7 + 1.0);
+		background += texture2D(spectrum,t - texel.yx * ofs).rg / (ofs * 0.5 + 1.0);
+		//background += texture2D(spectrum,t - texel * ofs).rg / (ofs * 0.9 + 1.0);
+		//background += texture2D(spectrum,t + texel * ofs).rg / (ofs * 0.9 + 1.0);
+
+
+		//background += texture2D(spectrum,t + texel.yx * ofs).rg / (ofs*0.7 + 1.0);
 
 		ofs += 1.0;
 	}
 
-	//background /= 10.0;
-	raw -= background * 0.9;
+	raw -= background * 0.3;
 
 
 	raw = max(vec2(0.0),raw);
@@ -133,13 +154,25 @@ float fscale(float x)
 	return x * 0.1 + 0.9 * x * x;
 }
 
+float fscale_inv(float y)
+{
+	return (sqrt(360.*y+1.)-1)/18.;
+}
+
+float getAudioDataSample(sampler2D tex, float index, float time)
+{
+	return texture2D(tex,vec2((index+0.5)/DATARES,time)).r;
+}
+
 
 //|waterfall_frag
+// Main spectrum display
 #version 410
 precision highp float;
 layout (location = 0) in vec2 texcoord;
 layout (location = 0) out vec4 out_Colour;
 uniform sampler2D spectrumTex;
+uniform sampler2D audioDataTex;
 uniform float currentPosition;
 uniform float currentPositionEst;
 
@@ -149,17 +182,27 @@ uniform float currentPositionEst;
 
 vec4 renderSpectrum(vec2 t)
 {
+	float original_tx = t.x;
 	t.x = fscale(t.x);
 
 	// spectrum
 	//vec3 col = colscale(scaleSpectrum(getSample(spectrumTex,t)).b);
 
-	//vec4 samp = scaleSpectrum(getSample(spectrumTex,t));
-	vec4 samp = scaleSpectrum(getSample_sharpen(spectrumTex,t));
+	vec4 samp = scaleSpectrum(getSample(spectrumTex,t));
+	//vec4 samp = scaleSpectrum(getSample_sharpen(spectrumTex,t));
+	//vec4 samp = scaleSpectrum(getSample_sharpen_in_time(spectrumTex,t));
+
+	float sval = samp.b;
+	// fade out old
+	float fade = smoothstep(mod(t.y-currentPositionEst+1.0,1.0)*128.0,0.0,1.0);
+	sval *= fade;
 
 	// normal
-	vec3 col = colscale(samp.b);
+	vec3 col = colscale(sval);
 
+	float fade2 = 1.0 - smoothstep(mod(currentPositionEst-t.y+1.0,1.0)*256.0,0.0,1.0);
+	col *= (1.0+fade2*2.0);
+	
 	// stereo diff
 	//vec3 col_l = colscale_bw(samp.r * 1.5 - samp.g * 0.5) * vec3(1.0,0.5,0.0);
 	//vec3 col_r = colscale_bw(samp.g * 1.5 - samp.r * 0.5) * vec3(0.0,0.5,1.0);
@@ -167,16 +210,31 @@ vec4 renderSpectrum(vec2 t)
 
 	// stereo separation
 	//float s = todB(getSample(spectrumTex,t)).a;
-	//vec3 col = mix(vec3(1.0,0.8,0.0), vec3(0.0,0.2,1.0), s*0.5+0.5);
+	//col = mix(vec3(1.0,0.8,0.0), vec3(0.0,0.2,1.0), s*0.5+0.5);
 
 
 	// decoding position indicator
-	float a = 1.0 - smoothstep(abs(currentPosition-t.y),0.0,0.5/1024.0);
-	col += vec3(1.0,0.0,0.0) * a * 0.5;
+	//float a = 1.0 - smoothstep(abs(currentPosition-t.y),0.0,0.5/1024.0);
+	//col += vec3(1.0,0.0,0.0) * a * 0.5;
 
 	// actual position indicator
-	float b = 1.0 - smoothstep(abs(currentPositionEst-t.y),0.0,0.5/1024.0);
-	col += vec3(0.0,1.0,0.0) * b * 0.5;
+	//float b = 1.0 - smoothstep(abs(currentPositionEst-t.y),0.0,0.5/1024.0);
+	//col += vec3(0.0,1.0,0.0) * b * 0.5;
+
+	// marker for dominant frequency detector
+	float df = getAudioDataSample(audioDataTex,0.0,t.y);
+	float da = getAudioDataSample(audioDataTex,2.0,t.y);
+	//df = fscale_inv(df);
+	//df = fscale(df);
+	//df /= 3.0;
+	//df *= df;
+	//col.g += (1.0 - clamp(abs(df - t.y) * 300.0,0.0,1.0))*da*da ;
+	//float a = 1.0 - step(0.001,abs(original_tx - df));
+	float a = 1.0 - step(0.001,abs(t.x - df/3.));  // magic const 3 from construction of PeakFrequencyFilter
+	col.r += a * fade;
+	col.g += a*da*da * fade;
+
+
 
 	return vec4(col,1.0);
 }
@@ -247,11 +305,13 @@ void main(void)
 
 
 //|spectrum_frag
+// Spectrum display (current frame, bar graph)
 #version 410
 precision highp float;
 layout (location = 0) in vec2 texcoord;
 layout (location = 0) out vec4 out_Colour;
 uniform sampler2D spectrumTex;
+uniform sampler2D audioDataTex;
 uniform float currentPosition;
 uniform float currentPositionEst;
 
@@ -259,10 +319,18 @@ uniform float currentPositionEst;
 #include ".|common";
 #include ".|spectrum_common";
 
+float stexel = 1.0/DATARES;
+float ttexel = 1.0/1024.0;
 
 float plotPoint(float xpos, float xsample, float width)
 {
 	return 1.0 - smoothstep(0.0,width,abs(xpos - xsample));
+}
+
+float getCurrentAudioDataSample(float index)
+{
+	float s = texture2D(audioDataTex,vec2((index+0.5)/DATARES,currentPositionEst)).r;
+	return s;
 }
 
 vec4 renderGraph_multi(vec2 t)
@@ -278,9 +346,17 @@ vec4 renderGraph_multi(vec2 t)
 	{
 		tx = texel.x * i * 10.0;
 		float s = scaleSpectrum(getSample(spectrumTex,vec2(ty,currentPositionEst - tx))).b; 
-
 		col += colscale(s) * plotPoint(t.x,s,0.02) * 0.3;
 	}
+
+	// marker for dominant frequency detector
+	
+	float df = getCurrentAudioDataSample(0.0);
+	float da = getCurrentAudioDataSample(2.0);
+	//df = fscale(df);
+	df /= 3.0;  // magic const 3 from construction of PeakFrequencyFilter
+	//df *= df;
+	col.g += (1.0 - clamp(abs(df - ty) * 300.0,0.0,1.0))*da*da ;
 
 	return vec4(col,1.0);
 }
@@ -334,9 +410,10 @@ void main(void)
 
 	vec4 col = renderGraph_multi(t);
 	//vec4 col = renderGraph_minmax(t);
-	
+
 	// gamma
 	col.rgb = l2g(col.rgb);
+
 
 	out_Colour = col;	
 }
