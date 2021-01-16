@@ -3,6 +3,7 @@ using NAudio.Wave;
 using nb3.Common;
 using nb3.Player.Analysis;
 using nb3.Player.Analysis.LoudnessWeighting;
+using nb3.Vis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,21 +30,21 @@ namespace nb3.Player.Analysis
         private ISampleProvider source;
         private int channels;
 
-        private const int fftSize = Globals.SPECTRUMRES * 2;
+        //private const int fftSize = Globals.SPECTRUMRES * 2;
         private const int targetFrameRate = 180;
 
-        private int frameInterval = 100;
+        private int frameInterval;
         private int sampleCounter = 0;
-        private const int outputResolution = Globals.SPECTRUMRES;
-        private const int outputResolution2 = Globals.SPECTRUMRES / 2;
+        //private const int outputResolution = Globals.SPECTRUMRES;
+        //private const int outputResolution2 = Globals.SPECTRUM2RES;
 
         private const int MAXCHANNELS = 2;
-        private const int BUFFERLEN = 8192;
+        //private const int BUFFERLEN = 8192;
 
         private BufferedFFT[] fft = new BufferedFFT[MAXCHANNELS];
         private BufferedFFT fft2;
 
-        private ILoudnessWeighting loudnessWeighting;
+        //private ILoudnessWeighting loudnessWeighting;
 
         private SpectrumAnalyser analyser = new SpectrumAnalyser();
 
@@ -57,13 +58,15 @@ namespace nb3.Player.Analysis
             this.source = source;
             this.channels = source.WaveFormat.Channels;
             this.frameInterval = source.WaveFormat.SampleRate / targetFrameRate;
-            this.loudnessWeighting = new ITU_T_468_Weighting(source.WaveFormat.SampleRate / 2);
+            //this.loudnessWeighting = new ITU_T_468_Weighting(source.WaveFormat.SampleRate / 2);
             //this.loudnessWeighting = new A_Weighting(source.WaveFormat.SampleRate);
 
             for (int i = 0; i < MAXCHANNELS; i++)
-                fft[i] = new BufferedFFT(BUFFERLEN, fftSize, loudnessWeighting);
+            {
+                fft[i] = new BufferedFFT(Globals.SPECTRUMRES, new ITU_T_468_Weighting(source.WaveFormat.SampleRate / 2));
+            }
 
-            fft2 = new BufferedFFT(outputResolution * 4, outputResolution, new NullWeighting(outputResolution / 2));
+            fft2 = new BufferedFFT(Globals.SPECTRUM2RES, new ITU_T_468_Weighting(source.WaveFormat.SampleRate / 2));
         }
 
 
@@ -102,29 +105,33 @@ namespace nb3.Player.Analysis
             {
                 fft[0].Add(samples[offset]);
                 fft[1].Add(samples[offset]);
+
+                fft2.Add(samples[offset]);
             }
             else
             {
                 fft[0].Add(samples[offset]);
                 fft[1].Add(samples[offset + 1]);
+
+                fft2.Add((samples[offset] + samples[offset + 1]) * 0.5f);
             }
 
             sampleCounter++;
             if (sampleCounter > frameInterval)
             {
-                float[] f = new float[outputResolution * MAXCHANNELS];
+                float[] f = new float[Globals.SPECTRUMRES * MAXCHANNELS];
 
                 for (int i = 0; i < MAXCHANNELS; i++)
                 {
-                    fft[i].GenerateTo(f, i, outputResolution, MAXCHANNELS);
+                    fft[i].GenerateTo(f, i, Globals.SPECTRUMRES, MAXCHANNELS);
                 }
 
-                
-                float[] f2 = new float[outputResolution2];
-                var mixtemp = MixChannels(f, outputResolution * MAXCHANNELS, MAXCHANNELS).Select(x => x / (float)MAXCHANNELS).ToArray();
-                fft2.Add(Resample(mixtemp, outputResolution2, x => x*x));
-                fft2.GenerateTo(f2, 0, outputResolution2);
-                
+
+                float[] f2 = new float[Globals.SPECTRUM2RES];
+                //var mixtemp = MixChannels(f, outputResolution * MAXCHANNELS, MAXCHANNELS).Select(x => x / (float)MAXCHANNELS).ToArray();
+                //fft2.Add(Resample(mixtemp, outputResolution2, x => x * x));
+                fft2.GenerateTo(f2, 0, Globals.SPECTRUM2RES);
+
 
                 var analysisSample = new AudioAnalysisSample(f, f2, new float[Globals.AUDIODATASIZE], frameInterval);
 

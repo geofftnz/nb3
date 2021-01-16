@@ -25,10 +25,23 @@ namespace nb3.Player.Analysis
 
             this.bufferSize = bufferSize;
             this.fftSize = fftSize;
-            this.LoudnessWeighting = weighting != null ? weighting : new NullWeighting(fftSize/4);
+            this.LoudnessWeighting = weighting != null ? weighting : new NullWeighting(fftSize / 4);
 
             ringBuffer = new RingBuffer<float>(bufferSize);
             fft = new FFT(fftSize);
+        }
+
+        /// <summary>
+        /// Creates a buffered FFT sized to generate the given output.
+        /// 
+        /// FFT is made twice the size of the output buffer, because we discard all frequencies above the Nyquist rate.
+        /// The ring buffer is made twice the size of the FFT (so 4 times the size of the output).
+        /// 
+        /// </summary>
+        /// <param name="outputSize"></param>
+        /// <param name="weighting"></param>
+        public BufferedFFT(int outputSize, ILoudnessWeighting weighting = null) : this(outputSize * 4, outputSize * 2, weighting)
+        { 
         }
 
         public void Add(float sample)
@@ -38,7 +51,7 @@ namespace nb3.Player.Analysis
 
         public void Add(IEnumerable<float> samples)
         {
-            foreach(var sample in samples)
+            foreach (var sample in samples)
                 ringBuffer.Add(sample);
         }
 

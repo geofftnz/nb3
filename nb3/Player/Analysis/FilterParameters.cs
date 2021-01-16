@@ -15,7 +15,7 @@ namespace nb3.Player.Analysis
         public AudioAnalysisSample Frame { get; set; }
 
         /// <summary>
-        /// A mono-mixed linear spectrum
+        /// A mono-mixed linear-frequency spectrum
         /// </summary>
         public float[] Spectrum { get; set; }
 
@@ -23,6 +23,11 @@ namespace nb3.Player.Analysis
         /// A mono-mixed linear spectrum, in dB
         /// </summary>
         public float[] SpectrumDB { get; set; }
+
+        /// <summary>
+        /// Auxiliary linear spectrum, in dB
+        /// </summary>
+        public float[] Spectrum2DB { get; set; }
 
         /// <summary>
         /// History of mono mixed linear spectrum

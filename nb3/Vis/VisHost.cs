@@ -16,6 +16,7 @@ using OpenTKExtensions.Input;
 using OpenTK.Input;
 using nb3.Player.Analysis;
 using OpenTKExtensions.Resources;
+using nb3.Common;
 
 namespace nb3.Vis
 {
@@ -41,7 +42,7 @@ namespace nb3.Vis
 
         private ConcurrentQueue<AudioAnalysisSample> sampleQueue = new ConcurrentQueue<AudioAnalysisSample>();
 
-        private float[] tempSpectrum = new float[GlobalTextures.SPECTRUMRES]; // this will be coming in from the analysis side.
+        private float[] tempSpectrum = new float[Globals.SPECTRUMRES]; // this will be coming in from the analysis side.
 
         private object playerPropertyLock = new object();
         private Player.Player _player = null;
@@ -96,7 +97,7 @@ namespace nb3.Vis
                     OpenTK.Graphics.GraphicsContextFlags.ForwardCompatible
                  )
         {
-            VSync = VSyncMode.Off;
+            VSync = VSyncMode.On;
 
             UpdateFrame += VisHost_UpdateFrame;
             RenderFrame += VisHost_RenderFrame;

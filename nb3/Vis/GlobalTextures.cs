@@ -31,12 +31,12 @@ namespace nb3.Vis
         /// Resolution of the audio spectrum.
         /// This is the U-coordinate dimension of the textures.
         /// </summary>
-        public const int SPECTRUMRES = 1024;
+        //public const int SPECTRUMRES = Globals.SPECTRUMRES;
 
         /// <summary>
         /// FFT of FFT, so half the size
         /// </summary>
-        public const int SPECTRUM2RES = 512;
+        //public const int SPECTRUM2RES = Globals.SPECTRUM2RES;
 
 
         public Texture SpectrumTex { get; private set; }
@@ -111,14 +111,14 @@ namespace nb3.Vis
         public GlobalTextures()
         {
             Resources.Add(SpectrumTex =
-                Texture.RG32f("spectrum", SPECTRUMRES, SAMPLEHISTORY,
+                Texture.RG32f("spectrum", Globals.SPECTRUMRES, SAMPLEHISTORY,
                     TextureParameterName.TextureMagFilter.SetTo(TextureMagFilter.Linear),
                     TextureParameterName.TextureMinFilter.SetTo(TextureMinFilter.Linear),
                     TextureParameterName.TextureWrapS.SetTo(TextureWrapMode.ClampToEdge),
                     TextureParameterName.TextureWrapT.SetTo(TextureWrapMode.Repeat)
                 ));
             Resources.Add(Spectrum2Tex =
-                Texture.R32f("spectrum2", SPECTRUM2RES, SAMPLEHISTORY,
+                Texture.R32f("spectrum2", Globals.SPECTRUM2RES, SAMPLEHISTORY,
                     TextureParameterName.TextureMagFilter.SetTo(TextureMagFilter.Linear),
                     TextureParameterName.TextureMinFilter.SetTo(TextureMinFilter.Linear),
                     TextureParameterName.TextureWrapS.SetTo(TextureWrapMode.ClampToEdge),
@@ -140,7 +140,7 @@ namespace nb3.Vis
 
         public void PushSample(AudioAnalysisSample sample)
         {
-            if (sample.Spectrum.Length < SPECTRUMRES * 2)
+            if (sample.Spectrum.Length < Globals.SPECTRUMRES * 2)
                 throw new IndexOutOfRangeException("spectrumData not large enough");
 
             samplesPerFrame = sample.Samples;
@@ -148,8 +148,8 @@ namespace nb3.Vis
             SamplePosition++;
             SamplePosition %= SAMPLEHISTORY;
 
-            SpectrumTex.RefreshImage(sample.Spectrum, 0, SamplePosition, SPECTRUMRES, 1);
-            Spectrum2Tex.RefreshImage(sample.Spectrum2, 0, SamplePosition, SPECTRUM2RES, 1);
+            SpectrumTex.RefreshImage(sample.Spectrum, 0, SamplePosition, Globals.SPECTRUMRES, 1);
+            Spectrum2Tex.RefreshImage(sample.Spectrum2, 0, SamplePosition, Globals.SPECTRUM2RES, 1);
             AudioDataTex.RefreshImage(sample.AudioData, 0, SamplePosition, Globals.AUDIODATASIZE, 1);
         }
 

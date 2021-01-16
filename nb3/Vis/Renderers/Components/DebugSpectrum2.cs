@@ -32,7 +32,7 @@ namespace nb3.Vis.Renderers.Components
             {
                 if (frameData != null)
                 {
-                    frameData.GlobalTextures.SpectrumTex.Bind(TextureUnit.Texture0);
+                    frameData.GlobalTextures.Spectrum2Tex.Bind(TextureUnit.Texture0);
                 }
             };
 

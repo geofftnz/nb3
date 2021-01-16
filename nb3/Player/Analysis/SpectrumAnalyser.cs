@@ -26,10 +26,11 @@ namespace nb3.Player.Analysis
         {
             filterParams.Spectrum = new float[Globals.SPECTRUMRES];
             filterParams.SpectrumDB = new float[Globals.SPECTRUMRES];
+            filterParams.Spectrum2DB = new float[Globals.SPECTRUM2RES];
             filterParams.SpectrumHistory = SpectrumHistory;
 
-            // The order of these is important
-            AddFilter(new PeakFrequencyFilter(0, Globals.SPECTRUMRES/3));  // TODO: magic const 3 replicated in shader code
+            // The order of these is important as they define where filter outputs end up in the analysis data texture.
+            AddFilter(new PeakFrequencyFilter(12, Globals.SPECTRUMRES / 3));  // TODO: magic const 3 replicated in shader code
             AddFilter(new KickDrumFilter3(0, 6));
             AddFilter(new KickDrumFilter2(0, 4));
             AddFilter(new KickDrumFilter2(0, 8));
@@ -52,6 +53,11 @@ namespace nb3.Player.Analysis
                 //s.rgb = 20.0 * log(s.rgb);
                 //s.rgb = max(vec3(0.0), vec3(1.0) + ((s.rgb + vec3(20.0)) / vec3(200.0)));
 
+            }
+
+            for (int i = 0; i < Globals.SPECTRUM2RES; i++)
+            {
+                filterParams.Spectrum2DB[i] = frame.Spectrum2[i].NormDB();
             }
 
             // run filters
