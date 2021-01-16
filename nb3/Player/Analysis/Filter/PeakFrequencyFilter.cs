@@ -43,7 +43,7 @@ namespace nb3.Player.Analysis.Filter
         {
             FreqStart = freq_start;
             FreqCount = freq_count;
-            prev_index = freq_count / 2;
+            prev_index = freq_start;
             index_lowpass = prev_index;
         }
 
@@ -93,14 +93,14 @@ namespace nb3.Player.Analysis.Filter
 
             float selectivity = (FreqSensitivity + max_lowpass * 0.01f);
 
-            for (int i = 0; i < FreqCount; i++)
+            for (int i = FreqStart; i < FreqStart + FreqCount; i++)
             {
                 float falloff = 1f - ((float)i * HighFreqFallOff) / (float)FreqCount;
 
 
                 distance = (float)Math.Abs(i - prev_index) * selectivity;
                 //current = Math.Max(0f, LowPassSpectrum[FreqStart + i] - SmoothSpectrum[FreqStart + i]) / (1f + distance);
-                current = Math.Max(0f, LowPassSpectrum[FreqStart + i] - SmoothSpectrum[FreqStart + i] * 0.5f) * falloff / (1f + distance);
+                current = Math.Max(0f, LowPassSpectrum[i] - SmoothSpectrum[i] * 0.5f) * falloff / (1f + distance);
                 total += current;
                 if (current > max)
                 {
@@ -110,7 +110,7 @@ namespace nb3.Player.Analysis.Filter
             }
             total /= FreqCount;
 
-            index_lowpass = index_lowpass * 0.1f + 0.9f * ((float)index / (float)FreqCount);
+            index_lowpass = index_lowpass * 0.1f + 0.9f * ((float)index / (float)Globals.SPECTRUMRES);
             max_lowpass = max_lowpass * 0.9f + 0.1f * max;
 
             output[(int)FilterOutputs.Frequency] = index_lowpass; // (float)Math.Sqrt(index_lowpass);

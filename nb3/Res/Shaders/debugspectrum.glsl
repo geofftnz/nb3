@@ -254,11 +254,10 @@ vec4 renderSpectrum(vec2 t)
 	float da = getAudioDataSample(audioDataTex,2.0,t.y);
 	//df = fscale_inv(df);
 	//df = fscale(df);
-	//df /= 3.0;
 	//df *= df;
 	//col.g += (1.0 - clamp(abs(df - t.y) * 300.0,0.0,1.0))*da*da ;
 	//float a = 1.0 - step(0.001,abs(original_tx - df));
-	float a = 1.0 - smoothstep(abs(t.x - df/3.),0.0,0.001);  // magic const 3 from construction of PeakFrequencyFilter
+	float a = 1.0 - smoothstep(abs(t.x - df),0.0,0.001);  
 	//col.r += a * fade;
 	//col.g += a*da*da * fade;
 	col.g += a*da*da*fade*3.;
@@ -394,7 +393,6 @@ vec4 renderGraph_multi(vec2 t)
 	float df = getCurrentAudioDataSample(0.0);
 	float da = getCurrentAudioDataSample(2.0);
 	//df = fscale(df);
-	df /= 3.0;  // magic const 3 from construction of PeakFrequencyFilter
 	//df *= df;
 	col.g += (1.0 - clamp(abs(df - ty) * 300.0,0.0,1.0))*da*da ;
 
