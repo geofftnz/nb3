@@ -8,9 +8,10 @@ namespace nb3.Player.Analysis.Filter
 {
     public interface ISpectrumFilter
     {
-        int OutputSlots { get; }
+        int OutputSlotCount { get; }
         int OutputOffset { get; set; }
         float[] GetValues(FilterParameters frame);
         void Reset();
+        string GetOutputName(int slot);
     }
 }

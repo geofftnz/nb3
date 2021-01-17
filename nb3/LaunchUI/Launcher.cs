@@ -32,9 +32,9 @@ namespace nb3.LaunchUI
         {
             if (visHost == null)
             {
-                visHost = new Vis.VisHost();
+                visHost = new Vis.VisHost(player);
                 visHost.Closed += VisHost_Closed;
-                visHost.Player = player;
+                //visHost.Player = player;
 
                 visHost.Run(60);
             }

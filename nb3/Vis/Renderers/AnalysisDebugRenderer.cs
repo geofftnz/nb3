@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using nb3.Vis.Renderers.Components;
 using OpenTK.Input;
 using OpenTKExtensions.Input;
+using OpenTKExtensions.Text;
+using NLog.Filters;
 
 namespace nb3.Vis.Renderers
 {
@@ -29,19 +31,21 @@ namespace nb3.Vis.Renderers
 
         private KeyboardActionManager keyboardActions;
 
-        private float ypos = 0f;
-        private float ypostarget = 0f;
+        private float ypos = 0.0f;
+        private float ypostarget = 0.0f;
         private const float yshift = 0.05f;
 
 
         private Matrix4 GetLayout(float size, ref float offset)
         {
-            return Matrix4.CreateScale(1.0f, size, 1.0f) * Matrix4.CreateTranslation(0.0f, offset -= size, 0.0f);
+            // model vertices are -1 -> 1 (zero-centered), so we need to bring them into the 0-1 range. (0.5-centered)
+            // we also apply a vertical scale factor for the size of the component.
+            return Matrix4.CreateScale(0.5f, 0.5f, 1.0f) * Matrix4.CreateTranslation(0.5f, 0.5f, 0.0f) * Matrix4.CreateScale(1f, size, 1f);
         }
 
-        public AnalysisDebugRenderer()
+        public AnalysisDebugRenderer(Font font, List<string> filterOutputNames)
         {
-            projection = Matrix4.CreateOrthographicOffCenter(0f, 1f, 0f, 1f, 0.0f, 10f);
+            projection = Matrix4.CreateOrthographicOffCenter(0f, 1f, 1f, 0f, 0.0f, 10f);  // 0,0 in top left
 
             //waterfallModel = Matrix4.CreateScale(1.0f, 0.5f, 1.0f) * Matrix4.CreateTranslation(0.0f, 0.5f, 0.0f);
             //spectrumModel = Matrix4.CreateScale(1.0f, 0.2f, 1.0f) * Matrix4.CreateTranslation(0.0f, 0.3f, 0.0f);
@@ -50,24 +54,25 @@ namespace nb3.Vis.Renderers
 
             float offset = 1.0f;
             waterfallModel = GetLayout(0.5f, ref offset);
-            spectrumModel = GetLayout(0.2f, ref offset); 
-            waterfall2Model = GetLayout(0.5f, ref offset);
-            audioDataModel = GetLayout(20.0f, ref offset);
+            spectrumModel = GetLayout(0.2f, ref offset);
+            waterfall2Model = GetLayout(0.2f, ref offset);
+            audioDataModel = GetLayout(10.0f, ref offset);  // 20
 
-            components.Add(waterfall = new DebugSpectrumWaterfall() { DrawOrder = 1, ModelMatrix = waterfallModel, ProjectionMatrix = projection });
-            components.Add(waterfall2 = new DebugSpectrum2() { DrawOrder = 1, ModelMatrix = waterfall2Model, ProjectionMatrix = projection });
-            components.Add(spectrum = new DebugSpectrum() { DrawOrder = 2, ModelMatrix = spectrumModel, ProjectionMatrix = projection });
-            components.Add(datagraphs = new DebugAudioData() { DrawOrder = 3, ModelMatrix = audioDataModel, ProjectionMatrix = projection });
+            int drawOrder = 1;
+            components.Add(waterfall = new DebugSpectrumWaterfall() { DrawOrder = drawOrder++, ModelMatrix = waterfallModel, ProjectionMatrix = projection });
+            components.Add(spectrum = new DebugSpectrum() { DrawOrder = drawOrder++, ModelMatrix = spectrumModel, ProjectionMatrix = projection });
+            components.Add(waterfall2 = new DebugSpectrum2() { DrawOrder = drawOrder++, ModelMatrix = waterfall2Model, ProjectionMatrix = projection });
+            components.Add(datagraphs = new DebugAudioData(font, filterOutputNames) { DrawOrder = drawOrder++, ModelMatrix = audioDataModel, ProjectionMatrix = projection });
             components.Add(keyboardActions = new KeyboardActionManager(), 1);
 
-            keyboardActions.Add(Key.Up, 0, () => { ypostarget -= yshift; });
-            keyboardActions.Add(Key.Down, 0, () => { ypostarget += yshift; });
+            keyboardActions.Add(Key.Up, 0, () => { ypostarget += yshift; });
+            keyboardActions.Add(Key.Down, 0, () => { ypostarget -= yshift; });
 
         }
 
         public override void Update(IFrameUpdateData frameData)
         {
-            ypos = ypos * 0.8f + 0.2f * ypostarget;
+            ypos = ypos * 0.9f + 0.1f * ypostarget;
             if (Math.Abs(ypos - ypostarget) < 0.0005)
                 ypos = ypostarget;
 
@@ -79,7 +84,16 @@ namespace nb3.Vis.Renderers
         {
             view = Matrix4.CreateTranslation(0f, ypos, 0f);
 
-            components.Do<ITransformable>(c => c.ViewMatrix = view);
+            float y = ypos;
+            //components.Do<ITransformable>(c => c.ViewMatrix = view);
+            // set the view matrices of our components
+            foreach (var c in components.OfType<ITransformable>())
+            {
+                c.ViewMatrix = Matrix4.CreateTranslation(0f, y, 0f);
+                y += c.ModelMatrix.Row1.Y * 2.0f; // offset by y scale, undoing half-scaling from model
+            }
+
+
         }
 
     }

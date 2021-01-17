@@ -7,11 +7,11 @@ using nb3.Common;
 
 namespace nb3.Player.Analysis.Filter
 {
-    public class KickDrumFilter2 : ISpectrumFilter
+    public class KickDrumFilter2 : SpectrumFilterBase, ISpectrumFilter
     {
         private const int NUMOUTPUTS = 4;
         public int OutputOffset { get; set; }
-        public int OutputSlots { get { return NUMOUTPUTS; } }
+        public int OutputSlotCount { get { return NUMOUTPUTS; } }
         private float[] output = new float[NUMOUTPUTS];
 
         public int FreqStart { get; set; }
@@ -27,7 +27,7 @@ namespace nb3.Player.Analysis.Filter
         private float activation = 0f;
 
 
-        public KickDrumFilter2(int freq_start = 0, int freq_count = 8)
+        public KickDrumFilter2(string name = "KD2", int freq_start = 0, int freq_count = 8) : base(name, "cur", "lp", "max", "out")
         {
             FreqStart = freq_start;
             FreqCount = freq_count;
@@ -56,7 +56,7 @@ namespace nb3.Player.Analysis.Filter
 
             if (diff > max * Trigger)
             {
-                max = Math.Max(diff,max);
+                max = Math.Max(diff, max);
                 activation = 1f;
             }
 

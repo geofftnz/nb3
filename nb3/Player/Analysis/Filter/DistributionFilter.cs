@@ -7,22 +7,23 @@ using System.Threading.Tasks;
 
 namespace nb3.Player.Analysis.Filter
 {
-    public class DistributionFilter : ISpectrumFilter
+    public class DistributionFilter : SpectrumFilterBase, ISpectrumFilter
     {
         private const int NUMOUTPUTS = 4;
         public int OutputOffset { get; set; }
-        public int OutputSlots { get { return NUMOUTPUTS; } }
+        public int OutputSlotCount { get { return NUMOUTPUTS; } }
         private float[] output = new float[NUMOUTPUTS];
 
         private float scale = 4f / (Globals.SPECTRUMRES * Globals.SPECTRUMRES);
 
         public float Lowpass { get; set; } = 0.95f;
 
-        public DistributionFilter()
+        public DistributionFilter(string name) : base(name, "0", "LP1", "LP2", "LP3")
         {
-
         }
-
+        public DistributionFilter() : this("Dist")
+        {
+        }
 
         public float[] GetValues(FilterParameters frame)
         {

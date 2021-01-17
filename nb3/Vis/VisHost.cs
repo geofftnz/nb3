@@ -86,7 +86,7 @@ namespace nb3.Vis
         private int lastTracksPlayed = 0;
 
 
-        public VisHost()
+        public VisHost(Player.Player player)
             : base(800, 600,
                  new OpenTK.Graphics.GraphicsMode(
                      new OpenTK.Graphics.ColorFormat(8, 8, 8, 8), 24, 8),
@@ -97,6 +97,8 @@ namespace nb3.Vis
                     OpenTK.Graphics.GraphicsContextFlags.ForwardCompatible
                  )
         {
+            Player = player;
+
             VSync = VSyncMode.On;
 
             UpdateFrame += VisHost_UpdateFrame;
@@ -125,7 +127,7 @@ namespace nb3.Vis
             components.Add(globalTextures);
             components.Add(frameCounter = new OpenTKExtensions.Components.FrameCounter(font));
             //components.Add(new Renderers.Components.DebugSpectrumWaterfall());
-            components.Add(new Renderers.AnalysisDebugRenderer());
+            components.Add(new Renderers.AnalysisDebugRenderer(font, Player.FilterOutputNames));
             //components.Add(new Renderers.BasicShaderRenderer());
 
             font.Loaded += (s, e) => { text.Font = font; };

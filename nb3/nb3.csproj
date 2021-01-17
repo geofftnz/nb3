@@ -90,6 +90,7 @@
     <Compile Include="Player\Analysis\Filter\KickDrumFilter3.cs" />
     <Compile Include="Player\Analysis\Filter\KickDrumFilter2.cs" />
     <Compile Include="Player\Analysis\Filter\KickDrumFilter.cs" />
+    <Compile Include="Player\Analysis\Filter\SpectrumFilterBase.cs" />
     <Compile Include="Player\Analysis\LoudnessWeighting\ILoudnessWeighting.cs" />
     <Compile Include="Player\Analysis\LoudnessWeighting\A_Weighting.cs" />
     <Compile Include="Player\Analysis\LoudnessWeighting\NullWeighting.cs" />

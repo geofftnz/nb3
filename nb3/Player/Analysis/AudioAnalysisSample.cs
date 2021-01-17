@@ -17,12 +17,15 @@ namespace nb3.Player.Analysis
         public float[] Spectrum2 { get; set; } = null;
         public float[] AudioData { get; set; } = null;
 
-        public AudioAnalysisSample(float[] spectrum, float[] spectrum2, float[] audioData, int samples)
+        //public List<string> AudioDataLabels { get; set; } = null;  // TODO: this should probably not be passed every frame.
+
+        public AudioAnalysisSample(float[] spectrum, float[] spectrum2, float[] audioData, int samples/*, List<string> audioDataLabels*/)
         {
             Spectrum = spectrum;
             Spectrum2 = spectrum2;
             AudioData = audioData;
             Samples = samples;
+            //AudioDataLabels = audioDataLabels;
         }
     }
 }

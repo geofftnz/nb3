@@ -11,7 +11,7 @@ uniform mat4 viewMatrix;
 void main() 
 {
 	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vertex.xy,0.0,1.0);
-	texcoord = vertex.xy;
+	texcoord = vertex.xy * vec2(0.5) + vec2(0.5);
 }
 
 
@@ -44,7 +44,7 @@ float getSample(sampler2D tex, vec2 t)
 void main(void)
 {
 	vec2 t = texcoord.yx;
-	t.x = 1.0 - t.x;  // invert y
+	//t.x = 1.0 - t.x;  // invert y
 
 	float index = (floor(t.x * DATARES) / DATARES) + stexel * 0.5;
 	float offset = 1.0 - fract(t.x * DATARES);

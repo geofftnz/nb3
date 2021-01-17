@@ -33,6 +33,10 @@ namespace nb3.Player
         private AudioFileReader2 reader = null;
         private SpectrumGenerator spectrum = null;
 
+        // hacky exposing of filter output name list
+        // TODO: This will probably throw a nullreferenceexception until a file is opened.
+        public List<string> FilterOutputNames => spectrum.FilterOutputNames;
+
         public event EventHandler<FftEventArgs> SpectrumReady;
         public event EventHandler<PlayerStartEventArgs> PlayerStart;
 
@@ -61,7 +65,7 @@ namespace nb3.Player
                     Thread.Sleep(10);
                 }
             }*/
-            
+
 
 
             Dispose(true);

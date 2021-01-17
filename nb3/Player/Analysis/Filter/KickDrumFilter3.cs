@@ -7,7 +7,7 @@ using nb3.Common;
 
 namespace nb3.Player.Analysis.Filter
 {
-    public class KickDrumFilter3 : ISpectrumFilter
+    public class KickDrumFilter3 : SpectrumFilterBase, ISpectrumFilter
     {
         private const int NUMOUTPUTS = 2;
 
@@ -15,7 +15,7 @@ namespace nb3.Player.Analysis.Filter
         private const int OUT_LEVEL = 1;
 
         public int OutputOffset { get; set; }
-        public int OutputSlots { get { return NUMOUTPUTS; } }
+        public int OutputSlotCount { get { return NUMOUTPUTS; } }
         private float[] output = new float[NUMOUTPUTS];
 
         public int FreqStart { get; set; }
@@ -38,7 +38,7 @@ namespace nb3.Player.Analysis.Filter
         private float activation_high = 0f;
 
 
-        public KickDrumFilter3(int freq_start = 0, int freq_count = 8)
+        public KickDrumFilter3(string name = "KD3", int freq_start = 0, int freq_count = 8) : base(name, "edge", "level")
         {
             FreqStart = freq_start;
             FreqCount = freq_count;
@@ -60,7 +60,7 @@ namespace nb3.Player.Analysis.Filter
 
             // step 2: maintain a long-term average
             avg_long = AvgLowpass.Mix(current, avg_long);
-            
+
             // step 3: get a recent moving average
             float lowpass = buffer.Last().Take(8).Average();
 

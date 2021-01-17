@@ -7,25 +7,25 @@ using nb3.Common;
 
 namespace nb3.Player.Analysis.Filter
 {
-    public class KickDrumFilter : ISpectrumFilter
+    public class KickDrumFilter : SpectrumFilterBase, ISpectrumFilter
     {
         private const int NUMOUTPUTS = 4;
         public int OutputOffset { get; set; }
-        public int OutputSlots { get { return NUMOUTPUTS; } }
+        public int OutputSlotCount { get { return NUMOUTPUTS; } }
         private float[] output = new float[NUMOUTPUTS];
 
         public float Threshold { get; set; } = 0.2f;
         public float Decay { get; set; } = 0.02f;
         public float Release { get; set; } = 0.2f;
-        
+
 
         private int freqStart, freqCount;
         private float lowpassCoeff;
         private float avg = 0f;
         private float activation = 1f;
-        
 
-        public KickDrumFilter(int freq_start = 0, int freq_count = 8, float lowpass_coeff = 0.98f)
+
+        public KickDrumFilter(string name = "KD1", int freq_start = 0, int freq_count = 8, float lowpass_coeff = 0.98f) : base(name, "cur", "lp", "max", "out")
         {
             this.freqStart = freq_start;
             this.freqCount = freq_count;

@@ -22,6 +22,8 @@ namespace nb3.Player.Analysis
         public List<ISpectrumFilter> Filters { get; private set; } = new List<ISpectrumFilter>();
         private int maxFilterOutputIndex = 0;
 
+        public List<string> OutputNames { get; } = new List<string>();
+
         public SpectrumAnalyser()
         {
             filterParams.Spectrum = new float[Globals.SPECTRUMRES];
@@ -30,12 +32,12 @@ namespace nb3.Player.Analysis
             filterParams.SpectrumHistory = SpectrumHistory;
 
             // The order of these is important as they define where filter outputs end up in the analysis data texture.
-            AddFilter(new PeakFrequencyFilter(12, Globals.SPECTRUMRES / 3));  // TODO: magic const 3 replicated in shader code
-            AddFilter(new KickDrumFilter3(0, 6));
-            AddFilter(new KickDrumFilter2(0, 4));
-            AddFilter(new KickDrumFilter2(0, 8));
-            AddFilter(new DistributionFilter());
-            AddFilter(new KickDrumFilter());
+            AddFilter(new PeakFrequencyFilter("PFF", 12, Globals.SPECTRUMRES / 3 - 12));
+            AddFilter(new KickDrumFilter3("KD3", 0, 6));
+            AddFilter(new KickDrumFilter2("KD2A", 0, 4));
+            AddFilter(new KickDrumFilter2("KD2B", 0, 8));
+            AddFilter(new DistributionFilter("DF"));
+            AddFilter(new KickDrumFilter("KD1"));
         }
 
         public void Process(AudioAnalysisSample frame)
@@ -64,7 +66,7 @@ namespace nb3.Player.Analysis
             foreach (var filter in Filters)
             {
                 var results = filter.GetValues(filterParams);
-                for (int i = 0; i < filter.OutputSlots; i++)
+                for (int i = 0; i < filter.OutputSlotCount; i++)
                 {
                     frame.AudioData[filter.OutputOffset + i] = results[i];
                 }
@@ -73,11 +75,17 @@ namespace nb3.Player.Analysis
 
         private void AddFilter(ISpectrumFilter filter)
         {
-            if (maxFilterOutputIndex + filter.OutputSlots >= Globals.AUDIODATASIZE)
+            if (maxFilterOutputIndex + filter.OutputSlotCount >= Globals.AUDIODATASIZE)
                 throw new InvalidOperationException("SpectrumAnalyser out of slots for filter.");
 
+            // get output labels
+            for(int i = 0; i < filter.OutputSlotCount; i++)
+            {
+                OutputNames.Add(filter.GetOutputName(i));
+            }
+
             filter.OutputOffset = maxFilterOutputIndex;
-            maxFilterOutputIndex += filter.OutputSlots;
+            maxFilterOutputIndex += filter.OutputSlotCount;
             Filters.Add(filter);
         }
     }

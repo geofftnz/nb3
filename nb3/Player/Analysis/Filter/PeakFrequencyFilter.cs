@@ -7,7 +7,7 @@ using nb3.Common;
 
 namespace nb3.Player.Analysis.Filter
 {
-    public class PeakFrequencyFilter : ISpectrumFilter
+    public class PeakFrequencyFilter : SpectrumFilterBase, ISpectrumFilter
     {
         private const int NUMOUTPUTS = 5;
 
@@ -22,7 +22,7 @@ namespace nb3.Player.Analysis.Filter
         }
 
         public int OutputOffset { get; set; }
-        public int OutputSlots { get { return NUMOUTPUTS; } }
+        public int OutputSlotCount { get { return NUMOUTPUTS; } }
         private float[] output = new float[NUMOUTPUTS];
 
         public int FreqStart { get; set; }
@@ -39,7 +39,7 @@ namespace nb3.Player.Analysis.Filter
         private float index_lowpass;
         private float max_lowpass = 0f;
 
-        public PeakFrequencyFilter(int freq_start = 0, int freq_count = 8)
+        public PeakFrequencyFilter(string name = "PFF", int freq_start = 0, int freq_count = 8) : base(name, "Freq", "Abs", "Rel", "MaxLP", "Sel")
         {
             FreqStart = freq_start;
             FreqCount = freq_count;

@@ -48,6 +48,9 @@ namespace nb3.Player.Analysis
 
         private SpectrumAnalyser analyser = new SpectrumAnalyser();
 
+        // hacky exposing of filter output name list
+        public List<string> FilterOutputNames => analyser.OutputNames;
+
         public event EventHandler<FftEventArgs> SpectrumReady;
         public WaveFormat WaveFormat => source.WaveFormat;
 
@@ -133,7 +136,7 @@ namespace nb3.Player.Analysis
                 fft2.GenerateTo(f2, 0, Globals.SPECTRUM2RES);
 
 
-                var analysisSample = new AudioAnalysisSample(f, f2, new float[Globals.AUDIODATASIZE], frameInterval);
+                var analysisSample = new AudioAnalysisSample(f, f2, new float[Globals.AUDIODATASIZE], frameInterval/*, analyser.OutputNames*/);
 
                 analyser.Process(analysisSample);
 
