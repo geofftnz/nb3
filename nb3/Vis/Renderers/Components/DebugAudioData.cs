@@ -85,13 +85,10 @@ namespace nb3.Vis.Renderers.Components
             
             foreach(var s in filterOutputNames)
             {
-                var tb = new TextBlock($"F{i:000}", $"{i:000} {s}", new Vector3(0.0f, 0.0f + (i+1) * rowsize, 0.0f), .1f / 1024f, new Vector4(1f, 1f, 1f, .3f));
+                var tb = new TextBlock($"F{i:000}", $"{i:000} {s}", new Vector3(0.0f, 0.0f + (i+.5f) * rowsize, 0.0f), .07f / 1024f, new Vector4(1f, 1f, 1f, .2f));
                 textManager.AddOrUpdate(tb);
                 i++;
             }
-            //TextBlock tb1 = new TextBlock("1", "Line 1", new Vector3(0.0f, 0.0f + rowsize, 0.0f), .1f / 1024f, new Vector4(1f, 1f, 1f, 1f));
-            //TextBlock tb2 = new TextBlock("2", "Line 2", new Vector3(0.0f, 0.0f + rowsize*2f, 0.0f), .1f / 1024f, new Vector4(1f, 1f, 1f, 1f));
-            //textManager.AddOrUpdate(tb2);
         }
 
         public override void Render(IFrameRenderData renderData)
@@ -99,25 +96,20 @@ namespace nb3.Vis.Renderers.Components
             frameData = renderData as FrameData;
             base.Render(renderData);
 
-            LayoutLabels();
+            textManager.Modelview = Matrix4.CreateScale(2f, ModelMatrix.Row1.Y, 1f) * ViewMatrix;
+            textManager.Projection = ProjectionMatrix;
+            textManager.Refresh();
 
             //components.Do<ITransformable>(c => { c.ViewMatrix = ViewMatrix; c.ProjectionMatrix = ProjectionMatrix; }); // TODO: temp hack until operatorcomponentbase is derived from compositecomponent
 
-            textManager.Refresh();
             components.Render(renderData);
         }
 
-        private bool _doneTextLayout = false;
         private void LayoutLabels()
         {
             //if (_doneTextLayout) return;
 
 
-            textManager.Modelview = Matrix4.CreateScale(2f, ModelMatrix.Row1.Y, 1f) * ViewMatrix;
-            textManager.Projection = ProjectionMatrix;
-
-
-            _doneTextLayout = true;
         }
     }
 }
