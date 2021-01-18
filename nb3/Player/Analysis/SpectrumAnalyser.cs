@@ -38,6 +38,9 @@ namespace nb3.Player.Analysis
             AddFilter(new KickDrumFilter2("KD2B", 0, 8));
             AddFilter(new DistributionFilter("DF"));
             AddFilter(new KickDrumFilter("KD1"));
+            AddFilter(new BroadbandTransientFilter("HH", 32, 32) { Threshold = 0.1f }) ;
+            AddFilter(new BroadbandTransientFilter("CL1", 8, 16) { Threshold = 0.15f });
+            AddFilter(new BroadbandTransientFilter("CL2", 16, 16) { Threshold = 0.15f });
         }
 
         public void Process(AudioAnalysisSample frame)
@@ -79,7 +82,7 @@ namespace nb3.Player.Analysis
                 throw new InvalidOperationException("SpectrumAnalyser out of slots for filter.");
 
             // get output labels
-            for(int i = 0; i < filter.OutputSlotCount; i++)
+            for (int i = 0; i < filter.OutputSlotCount; i++)
             {
                 OutputNames.Add(filter.GetOutputName(i));
             }

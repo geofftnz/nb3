@@ -84,6 +84,7 @@
     </Compile>
     <Compile Include="Player\Analysis\AudioAnalysisSample.cs" />
     <Compile Include="Player\Analysis\FilterParameters.cs" />
+    <Compile Include="Player\Analysis\Filter\BroadbandTransientFilter.cs" />
     <Compile Include="Player\Analysis\Filter\DistributionFilter.cs" />
     <Compile Include="Player\Analysis\Filter\ISpectrumFilter.cs" />
     <Compile Include="Player\Analysis\Filter\PeakFrequencyFilter.cs" />

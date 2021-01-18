@@ -306,8 +306,8 @@ vec4 renderSpectrum(vec2 t)
 
 	// spectrum
 	//vec3 col = colscale(scaleSpectrum2(texture2D(spectrumTex,t).r));
-	vec4 samp = scaleSpectrum(getSample_sharpen_in_time_smooth_in_freq(spectrumTex,t));
-	//vec4 samp = scaleSpectrum(getSample(spectrumTex,t));
+	//vec4 samp = scaleSpectrum(getSample_sharpen_in_time_smooth_in_freq(spectrumTex,t));
+	vec4 samp = scaleSpectrum(getSample(spectrumTex,t));
 
 	float sval = samp.b;
 	// fade out old

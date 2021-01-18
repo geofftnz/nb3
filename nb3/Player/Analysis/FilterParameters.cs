@@ -25,6 +25,11 @@ namespace nb3.Player.Analysis
         public float[] SpectrumDB { get; set; }
 
         /// <summary>
+        /// Auxiliary linear spectrum, linear values
+        /// </summary>
+        //public float[] Spectrum2 { get; set; }
+
+        /// <summary>
         /// Auxiliary linear spectrum, in dB
         /// </summary>
         public float[] Spectrum2DB { get; set; }

@@ -185,6 +185,7 @@ namespace nb3.Player
             {
                 if (readerStream != null)
                 {
+                    readerStream.Close();
                     readerStream.Dispose();
                     readerStream = null;
                 }
