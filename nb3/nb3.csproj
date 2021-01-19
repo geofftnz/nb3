@@ -86,6 +86,7 @@
     <Compile Include="Player\Analysis\FilterParameters.cs" />
     <Compile Include="Player\Analysis\Filter\BroadbandTransientFilter.cs" />
     <Compile Include="Player\Analysis\Filter\DistributionFilter.cs" />
+    <Compile Include="Player\Analysis\Filter\IFilter.cs" />
     <Compile Include="Player\Analysis\Filter\ISpectrumFilter.cs" />
     <Compile Include="Player\Analysis\Filter\PeakFrequencyFilter.cs" />
     <Compile Include="Player\Analysis\Filter\KickDrumFilter3.cs" />
