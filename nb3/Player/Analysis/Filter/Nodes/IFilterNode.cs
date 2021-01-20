@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace nb3.Player.Analysis.Filter
+namespace nb3.Player.Analysis.Filter.Nodes
 {
     /// <summary>
     /// Simple filter interface. 
     /// </summary>
-    public interface IFilter
+    public interface IFilterNode
     {
         float Get(float input);
     }

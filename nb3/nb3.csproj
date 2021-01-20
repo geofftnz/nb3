@@ -86,8 +86,10 @@
     <Compile Include="Player\Analysis\FilterParameters.cs" />
     <Compile Include="Player\Analysis\Filter\BroadbandTransientFilter.cs" />
     <Compile Include="Player\Analysis\Filter\DistributionFilter.cs" />
-    <Compile Include="Player\Analysis\Filter\IFilter.cs" />
+    <Compile Include="Player\Analysis\Filter\Nodes\Convolution.cs" />
+    <Compile Include="Player\Analysis\Filter\Nodes\IFilterNode.cs" />
     <Compile Include="Player\Analysis\Filter\ISpectrumFilter.cs" />
+    <Compile Include="Player\Analysis\Filter\Nodes\HysteresisPulse.cs" />
     <Compile Include="Player\Analysis\Filter\PeakFrequencyFilter.cs" />
     <Compile Include="Player\Analysis\Filter\KickDrumFilter3.cs" />
     <Compile Include="Player\Analysis\Filter\KickDrumFilter2.cs" />
