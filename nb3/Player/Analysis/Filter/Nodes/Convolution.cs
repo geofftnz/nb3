@@ -8,6 +8,8 @@ namespace nb3.Player.Analysis.Filter.Nodes
 {
     /// <summary>
     /// Applies convolution to the incoming stream.
+    /// 
+    /// Coefficient array starts with 0 = current sample, then goes back in time.
     /// </summary>
     public class Convolution : IFilterNode
     {
@@ -17,7 +19,8 @@ namespace nb3.Player.Analysis.Filter.Nodes
         public Convolution(params float[] coefficients)
         {
             _coefficients = new float[coefficients.Length];
-            for(int i = 0; i < coefficients.Length;i++)
+
+            for (int i = 0; i < coefficients.Length; i++)
             {
                 _coefficients[i] = coefficients[i];
             }
@@ -27,7 +30,17 @@ namespace nb3.Player.Analysis.Filter.Nodes
 
         public float Get(float input)
         {
-            throw new NotImplementedException();
+            float ret = 0f;
+
+            // add sample to ring buffer
+            _ringBuffer.Add(input);
+
+            int i = 0;
+            foreach (float v in _ringBuffer.Last().Take(_coefficients.Length))
+            {
+                ret += v * _coefficients[i++];                  
+            }
+            return ret;
         }
     }
 }

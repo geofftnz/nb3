@@ -51,6 +51,8 @@ void main(void)
 
 	float s = getSample(audioDataTex,vec2(index,t.y));
 
+	float current = getSample(audioDataTex,vec2(index,currentPositionEst));
+
 	//s *= 10.0;
 	
 
@@ -58,10 +60,15 @@ void main(void)
 
 	vec3 col = colscale(s) * a * 2.0;
 
-	float fade = smoothstep(mod(t.y-currentPositionEst+1.0,1.0)*128.0,0.0,1.0);
-	float fade2 = 1.0 - smoothstep(mod(currentPositionEst-t.y+1.0,1.0)*256.0,0.0,1.0);
-	col *= fade;
-	col *= (1.0+fade2*2.0);
+
+	float block = (1.0 - step(0.9,mod(t.y-currentPositionEst+1.0,1.0)*64.0));
+	
+	col.rgb += vec3(current) * block;
+
+	//float fade = smoothstep(mod(t.y-currentPositionEst+1.0,1.0)*128.0,0.0,1.0);
+	//float fade2 = 1.0 - smoothstep(mod(currentPositionEst-t.y+1.0,1.0)*256.0,0.0,1.0);
+	//col *= fade;
+	//col *= (1.0+fade2*2.0);
 
 	// gamma
 	col.rgb = l2g(col.rgb);

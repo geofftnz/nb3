@@ -38,9 +38,17 @@ namespace nb3.Player.Analysis
             AddFilter(new KickDrumFilter2("KD2B", 0, 8));
             AddFilter(new DistributionFilter("DF"));
             AddFilter(new KickDrumFilter("KD1"));
-            AddFilter(new BroadbandTransientFilter("HH", 32, 32) { Threshold = 0.1f }) ;
-            AddFilter(new BroadbandTransientFilter("CL1", 8, 16) { Threshold = 0.15f });
-            AddFilter(new BroadbandTransientFilter("CL2", 16, 16) { Threshold = 0.15f });
+            AddFilter(new BroadbandTransientFilter("HH", (f, i) => f.Spectrum2DB[i], 96, 128, new float[] { 0.5f, 0.5f, 0.2f, 0.1f, -0.2f, -0.2f, -0.1f, -0.1f }) { TriggerHigh = 0.4f, TriggerLow = 0.35f });  // 256 spectrum
+
+            AddFilter(new BroadbandTransientFilter("BD", (f, i) => f.Spectrum2DB[i], 0, 4, new float[] { 0.5f, 0.5f, 0.2f, 0.1f, -0.2f, -0.2f, -0.1f, -0.1f }) { TriggerHigh = 0.4f, TriggerLow = 0.35f });  // 256 spectrum
+
+
+            AddFilter(new BroadbandTransientFilter("SN", (f, i) => f.Spectrum2DB[i], 64, 192, new float[] { 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.1f, 0.1f, 0.1f, 0.1f, -0.2f, -0.2f, -0.2f, -0.2f }) { TriggerHigh = 0.4f, TriggerLow = 0.35f });  // 256 spectrum
+
+            //AddFilter(new BroadbandTransientFilter("HH2", (f, i) => f.Spectrum2DB[i], 128, 96, Enumerable.Range(0, 16).Select(i => i < 8 ? 0.05f : -0.02f).ToArray()) { TriggerHigh = 0.4f, TriggerLow = 0.35f });  // 256 spectrum
+
+            //AddFilter(new BroadbandTransientFilter("CL1", 8, 16) { Threshold = 0.15f });
+            //AddFilter(new BroadbandTransientFilter("CL2", 16, 16) { Threshold = 0.15f });
         }
 
         public void Process(AudioAnalysisSample frame)

@@ -99,7 +99,7 @@ namespace nb3.Vis
         {
             Player = player;
 
-            TargetRenderFrequency = 120f;
+            //TargetRenderFrequency = 120f;
             VSync = VSyncMode.Off;
 
             UpdateFrame += VisHost_UpdateFrame;
