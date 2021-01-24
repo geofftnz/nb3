@@ -200,6 +200,7 @@ namespace nb3.Player
 
                 if (reader != null)
                 {
+                    reader.Close();
                     reader.Dispose();
                     reader = null;
                 }

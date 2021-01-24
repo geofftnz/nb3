@@ -28,6 +28,7 @@ namespace nb3.Player.Analysis
         {
             filterParams.Spectrum = new float[Globals.SPECTRUMRES];
             filterParams.SpectrumDB = new float[Globals.SPECTRUMRES];
+            filterParams.Spectrum2 = new float[Globals.SPECTRUM2RES];
             filterParams.Spectrum2DB = new float[Globals.SPECTRUM2RES];
             filterParams.SpectrumHistory = SpectrumHistory;
 
@@ -38,12 +39,14 @@ namespace nb3.Player.Analysis
             AddFilter(new KickDrumFilter2("KD2B", 0, 8));
             AddFilter(new DistributionFilter("DF"));
             AddFilter(new KickDrumFilter("KD1"));
-            AddFilter(new BroadbandTransientFilter("HH", (f, i) => f.Spectrum2DB[i], 96, 128, new float[] { 0.5f, 0.5f, 0.2f, 0.1f, -0.2f, -0.2f, -0.1f, -0.1f }) { TriggerHigh = 0.4f, TriggerLow = 0.35f });  // 256 spectrum
+            AddFilter(new BroadbandTransientFilter("HH1", (f, i) => f.Spectrum2[i], 96, 128, MathExt.Flat(2)) { TriggerHigh = 0.5f, TriggerLow = 0.45f, MaxGain = 4f });  // 256 spectrum
 
-            AddFilter(new BroadbandTransientFilter("BD", (f, i) => f.Spectrum2DB[i], 0, 4, new float[] { 0.5f, 0.5f, 0.2f, 0.1f, -0.2f, -0.2f, -0.1f, -0.1f }) { TriggerHigh = 0.4f, TriggerLow = 0.35f });  // 256 spectrum
+            AddFilter(new BroadbandTransientFilter("HH2", (f, i) => f.Spectrum2[i], 96, 128, MathExt.Flat(2)) { TriggerHigh = 0.8f, TriggerLow = 0.75f, MaxGain = 4f });  // 256 spectrum
+
+            AddFilter(new BroadbandTransientFilter("BD", (f, i) => f.Spectrum[i], 0, 12, MathExt.Flat(4)) { TriggerHigh = 0.5f, TriggerLow = 0.45f, MaxGain = 4f });  // 256 spectrum
 
 
-            AddFilter(new BroadbandTransientFilter("SN", (f, i) => f.Spectrum2DB[i], 64, 192, new float[] { 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.1f, 0.1f, 0.1f, 0.1f, -0.2f, -0.2f, -0.2f, -0.2f }) { TriggerHigh = 0.4f, TriggerLow = 0.35f });  // 256 spectrum
+            AddFilter(new BroadbandTransientFilter("SN", (f, i) => f.Spectrum2[i], 32, 96, MathExt.LinearDecay(16)) { TriggerHigh = 0.8f, TriggerLow = 0.75f, MaxGain = 8f });  // 256 spectrum
 
             //AddFilter(new BroadbandTransientFilter("HH2", (f, i) => f.Spectrum2DB[i], 128, 96, Enumerable.Range(0, 16).Select(i => i < 8 ? 0.05f : -0.02f).ToArray()) { TriggerHigh = 0.4f, TriggerLow = 0.35f });  // 256 spectrum
 
@@ -70,6 +73,7 @@ namespace nb3.Player.Analysis
 
             for (int i = 0; i < Globals.SPECTRUM2RES; i++)
             {
+                filterParams.Spectrum2[i] = frame.Spectrum2[i];
                 filterParams.Spectrum2DB[i] = frame.Spectrum2[i].NormDB();
             }
 

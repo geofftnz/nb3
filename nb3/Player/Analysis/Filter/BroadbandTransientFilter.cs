@@ -26,9 +26,9 @@ namespace nb3.Player.Analysis.Filter
         public enum Outputs
         {
             Current,
-            MovingAverage,
-            HighPass,
-            PeakTracker,
+            Convolution,
+            Peaks,
+            GainControl,
             Edge,
             Level
         }
@@ -46,16 +46,32 @@ namespace nb3.Player.Analysis.Filter
 
         public float Decay { get; set; } = 0.999f;  // decay for the peak tracker
 
-        public float AvgLowpass { get; set; } = 0.99f;  // lowpass value used for long-term average
-        //public float AvgLowpassHigh { get; set; } = 0.98f;
+        public float PeakExtractionAvgLowpass { get => peak.Lowpass; set => peak.Lowpass = value; }   // lowpass value used for long-term average
+        public float PeakExtractionAmount { get => peak.Amount; set => peak.Amount = value; }
+
+
         public float ActivationLinearDecay { get; set; } = 0.02f;
         public float HighPass { get; set; } = 1.0f;
 
+        /// <summary>
+        /// AGC main gain
+        /// </summary>
+        public float MaxGain { get => agc.MaxGain; set => agc.MaxGain = value; }
+
+        /// <summary>
+        /// Responsiveness of gain control. 0 = disabled. 1 = instant.
+        /// </summary>
+        public float AGCResponse { get => agc.PeakMix; set => agc.PeakMix = value; }
+
+        /// <summary>
+        /// Recovery time of gain control. 1 = never recovers. 0.99 is a decent value.
+        /// </summary>
+        public float AGCDecay { get => agc.Decay; set => agc.Decay = value; }
+
+
+
         private const int RINGLEN = 128;
         private RingBuffer<float> buffer = new RingBuffer<float>(RINGLEN);
-        private float avg_long = 0f;
-        private float max = 0f;
-        private bool state = false;
         private float activation_rising_edge = 0f;
         private float activation_high = 0f;
         private float last_pulse = 0f;
@@ -68,7 +84,7 @@ namespace nb3.Player.Analysis.Filter
         Func<FilterParameters, int, float> Spectrum;
 
 
-        public BroadbandTransientFilter(string name, Func<FilterParameters, int, float> spectrum, int freq_start, int freq_count, IList<float> convolutionCoefficients) : base(name, "current", "movavg", "highpass", "peak", "edge", "level")
+        public BroadbandTransientFilter(string name, Func<FilterParameters, int, float> spectrum, int freq_start, int freq_count, IList<float> convolutionCoefficients) : base(name, "input", "convolution", "peaks", "agc", "edge", "level")
         {
             Spectrum = spectrum;
             FreqStart = freq_start;
@@ -86,8 +102,8 @@ namespace nb3.Player.Analysis.Filter
 
             conv = new Convolution(convolutionCoefficients.ToArray());
             hyst = new HysteresisPulse(0.5f, 0.4f);
-            peak = new PeakExtract(AvgLowpass,0.5f);
-            agc = new GainControl(1.5f, 0.0f, 0.999f);
+            peak = new PeakExtract(0.99f, 1.0f);
+            agc = new GainControl(1.5f, 0.0f, 0.99f);
         }
 
         public float[] GetValues(FilterParameters frame)
@@ -98,67 +114,19 @@ namespace nb3.Player.Analysis.Filter
                 current += Spectrum(frame, i);
             }
             current /= (float)FreqCount;
+            current = current.NormDB();
 
             output[(int)Outputs.Current] = current;
 
             // convolution filter 
             current = conv.Get(current);
-
-            output[(int)Outputs.MovingAverage] = current;
-
-            buffer.Add(current);
+            output[(int)Outputs.Convolution] = current;
 
             current = peak.Get(current);
-            output[(int)Outputs.HighPass] = current;
+            output[(int)Outputs.Peaks] = current;
 
             current = agc.Get(current);
-            output[(int)Outputs.PeakTracker] = current;
-
-            /*
-            // generate long-term average
-            avg_long = AvgLowpass.Mix(current, avg_long);
-
-
-            //output[(int)Outputs.MovingAverage] = avg_long;
-            // get a recent moving average of previous samples
-            float movingAverage = buffer.Last().Skip(1).Take(64).Average();
-            //output[(int)Outputs.MovingAverage] = movingAverage;
-
-
-            // subtract a portion of the moving average from our current (basic highpass)
-            float highpass = Math.Max(0f, current - movingAverage * HighPass);
-            //float highpass = Math.Max(0f, current - avg_long * HighPass);
-            //output[(int)Outputs.HighPass] = highpass;
-
-            // peak tracker
-            max = Math.Max(Threshold, Math.Max(max, highpass));
-            output[(int)Outputs.PeakTracker] = max;
-
-            // highpass as proportion of max
-            float highpass_rel = highpass / max;
-            output[(int)Outputs.HighPass] = highpass_rel;
-
-            if (!state) // we are off
-            {
-                // should we turn on?
-                if (highpass_rel > TriggerHigh)
-                {
-                    state = true;
-                    activation_rising_edge = 1f;
-                }
-
-            }
-            else // we are on
-            {
-                activation_high = 1f;
-
-                // should we turn off?
-                if (highpass_rel < TriggerLow)
-                {
-                    state = false;
-                }
-            }*/
-
+            output[(int)Outputs.GainControl] = current;
 
             float pulse = hyst.Get(current);
 
@@ -173,13 +141,12 @@ namespace nb3.Player.Analysis.Filter
                 activation_high = pulse;
             }
 
-            
+
 
             output[(int)Outputs.Edge] = activation_rising_edge;
             output[(int)Outputs.Level] = activation_high;
             activation_rising_edge = Math.Max(0f, activation_rising_edge - ActivationLinearDecay);
             activation_high = Math.Max(0f, activation_high - ActivationLinearDecay);
-            max *= Decay;
 
             last_pulse = pulse;
             return output;

@@ -22,9 +22,20 @@ namespace nb3.Common
             return (float)((double)a).NormDB();
         }
 
-        public static float Mix(this float x, float a, float b) 
+        public static float Mix(this float x, float a, float b)
         {
             return a * (1f - x) + x * b;
+        }
+
+        public static float[] Flat(int n, float sum_to = 1f)
+        {
+            return Enumerable.Range(0, n).Select(i => sum_to / n).ToArray();
+        }
+        public static float[] LinearDecay(int n, float sum_to = 1f)
+        {
+            var x = Enumerable.Range(0, n).Select(i => (float)(n - i)).ToArray();
+            var total = x.Sum();
+            return x.Select(i => (i * sum_to) / total).ToArray();
         }
     }
 }
